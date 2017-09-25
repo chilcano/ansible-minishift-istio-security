@@ -1,0 +1,81 @@
+- name: install | get_minishift | Get the tagged release
+  uri:
+    url: "{{ __ms.repo.github_url }}/{{ __ms.repo.name }}/releases/tags/{{ __ms.repo.release_tag_name }}"
+  register: release
+  when: __ms.repo.release_tag_name != ''
+
+- name: install | get_minishift | Set the tagged release
+  set_fact:
+    assets_url: "{{ release.json.assets_url }}"
+  when: __ms.repo.release_tag_name != ''
+
+- name: install | get_minishift | Get the latest release
+  uri:
+    url: "{{ __ms.repo.github_url }}/{{ __ms.repo.name }}/releases/latest"
+  register: release
+  when: __ms.repo.release_tag_name == ''
+
+- name: install | get_minishift | Set the latest release
+  set_fact:
+    assets_url: "{{ release.json.assets_url }}"
+  when: __ms.repo.release_tag_name == ''
+
+- name: install | get_minishift | Should have an 'assets_url'
+  assert:
+    that: assets_url is defined
+
+- name: install | get_minishift | Show 'json.assets_url'
+  debug:
+    var: assets_url
+
+- name: install | get_minishift | Get the list of assets
+  uri:
+    url: "{{ assets_url }}"
+  register: assets
+
+- name: install | get_minishift | Find the Mac asset
+  set_fact:
+    asset_url: "{{ item.browser_download_url }}"
+    asset_name: "{{ item.browser_download_url | basename }}"
+    asset_name_without_ext: "{{ ( item.browser_download_url | basename ) | regex_replace('^(.+).tgz$', '\\1') }}"
+  with_items: "{{ assets.json }}"
+  when: ( item.name | search('darwin-amd64.tgz$') ) and ( assets is defined and ansible_os_family == 'Darwin' )
+
+- name: install | get_minishift | Find the Linux asset
+  set_fact:
+    asset_url: "{{ item.browser_download_url }}"
+    asset_name: "{{ item.browser_download_url | basename }}"
+    asset_name_without_ext: "{{ ( item.browser_download_url | basename ) | regex_replace('^(.+).tgz$', '\\1') }}"
+  with_items: "{{ assets.json }}"
+  when: ( item.name | search('linux-amd64.tgz$') ) and ( assets is defined and ansible_os_family != 'Darwin' and ansible_os_family != 'Windows' )
+
+- name: install | get_minishift | Should have an 'asset_name'
+  assert:
+    that: asset_name is defined
+
+- name: install | get_minishift | Show 'json.asset_name'
+  debug:
+    var: asset_name
+
+- name: install | get_minishift | Create a dir to unarchive
+  file:
+    path: "{{ __ms.dir.local_repo }}/{{ asset_name_without_ext }}"
+    state: directory
+    recurse: yes
+
+- name: install | get_minishift | Download the asset
+  get_url:
+    url: "{{ asset_url }}"
+    dest: "{{ __ms.dir.local_repo }}/{{ asset_name }}"
+
+- name: install | get_minishift | Unzip the archive
+  command: "unzip {{ __ms.dir.local_repo }}/{{ asset_name }} -d {{ __ms.dir.local_repo }}/{{ asset_name_without_ext }}"
+  args:
+    creates: "{{ __ms.dir.local_repo }}/{{ asset_name_without_ext }}/minishift"
+  when: asset_name | search('zip$')
+
+- name: install | get_minishift | Untar the archive
+  command: "tar -xvzf {{ __ms.dir.local_repo }}/{{ asset_name }} -C {{ __ms.dir.local_repo }}/{{ asset_name_without_ext }}"
+  args:
+    creates: "{{ __ms.dir.local_repo }}/{{ asset_name_without_ext }}/minishift"
+  when: asset_name | search('tgz$')

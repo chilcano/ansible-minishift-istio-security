@@ -1,0 +1,32 @@
+---
+#
+# ansible-playbook -i inventory minishift-istio-sec-01.yml --ask-become-pass  
+#
+- name: Install Minishift demo.
+  hosts: Pisco0
+  connection: local
+  gather_facts: yes
+  roles:
+    - role: ansible-role-minishift
+      minishift:
+        action_to_trigger: fresh_install  # [ install | fresh_install | clean | stop ]
+        start_options:
+          vm-driver: virtualbox
+          #iso-url: file:///Users/Chilcano/Downloads/__kube_repo/minishift-b2d-iso/v1.1.0/minishift-b2d.iso
+          #iso-url: file:///Users/Chilcano/Downloads/__kube_repo/minishift-centos-iso/v1.1.0/minishift-centos7.iso
+          #iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.1.0/minishift-b2d.iso
+          iso-url: https://github.com/minishift/minishift-centos-iso/releases/download/v1.1.0/minishift-centos7.iso
+          public-hostname: openshift02
+          profile: openshift02
+          #public-hostname: openshift01
+          #profile: openshift01
+
+- name: Install Istio demo.
+  hosts: Pisco0
+  connection: local
+  gather_facts: yes
+  roles:
+    - role: ansible-role-istio
+      istio:
+        minishift:
+          profile: openshift02

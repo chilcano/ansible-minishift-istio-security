@@ -1,0 +1,9 @@
+.DS_Store
+.vagrant
+*.retry
+*.deb
+*.txt
+*.bcn
+*.man
+README.md
+sample-1*.yml

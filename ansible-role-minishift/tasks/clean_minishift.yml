@@ -1,0 +1,22 @@
+- name: clean_minishift | Get all Minishift profiles
+  command: "minishift profiles list"
+  register: minishift_profiles_clean
+
+- name: clean_minishift | Defining the Minishift profile's regex
+  set_fact:
+    minishift_profile_regex: "- {{ __ms.start_options.profile }}(.+)"
+
+- name: clean_minishift | Get Minishift '{{ __ms.start_options.profile }}' status
+  command: "minishift --profile {{ __ms.start_options.profile }} status"
+  register: minishift_profile_clean_stat
+  when: minishift_profiles_clean.stdout | regex_search(minishift_profile_regex)
+
+### requires: $ pip install pexpect
+- name: clean_minishift | Delete Minishift profile '{{ __ms.start_options.profile }}'
+  expect:
+    command: "minishift profile delete {{ __ms.start_options.profile }}"
+    responses:
+      "You are deleting the active profile. It will remove the VM and all related artifacts. Do you want to continue": "y"
+      "Will remove the VM and all the related artifacts. Do you want to continue": "y"
+    #timeout: 60
+  when: minishift_profiles_clean.stdout | regex_search(minishift_profile_regex) and ( 'Does Not Exist' in minishift_profile_clean_stat.stdout or __ms.action_to_trigger == 'clean' )

@@ -1,0 +1,35 @@
+- name: clean | Delete 'istioctl' to the 'bin' directory
+  file:
+    path: "{{ __i.dir.local_bin }}/istioctl"
+    state: absent
+  become: yes
+  become_user: root
+  when: __i.action.clean.istioctl
+
+- name: clean | Check if Istio core has been installed
+  command: "oc describe -f istio-{{ __i.repo.release_tag_name }}/install/kubernetes/istio.yaml"
+  register: istio_core_stat
+  args:
+    chdir: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
+  ignore_errors: yes
+
+- name: clean | Uninstall Istio core
+  command: "oc delete -f istio-{{ __i.repo.release_tag_name }}/install/kubernetes/istio.yaml"
+  args:
+    chdir: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
+  when: __i.action.clean.core and ( istio_core_stat.stderr is not defined or istio_core_stat.stderr == '' )
+
+- name: clean | Uninstall Istio addons
+  command: "oc delete -f {{ item }}"
+  with_items:
+    - "istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/prometheus.yaml"
+    - "istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/grafana.yaml"
+    - "istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/servicegraph.yaml"
+  args:
+    chdir: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
+  when: __i.action.clean.addons
+  ignore_errors: yes  ### to ignore error when trying remove resources that doesnt exist.
+
+## deploy istio sample application
+
+## get istioctl, copy it to bin and update PATH

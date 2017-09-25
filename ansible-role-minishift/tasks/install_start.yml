@@ -1,0 +1,24 @@
+- name: install_start | Initializing 'minishift_start_options_string' fact
+  set_fact:
+    minishift_start_options_string: ""
+
+- name: install_start | Concatenating 'minishift_start_options_string' fact
+  set_fact:
+    minishift_start_options_string: "{{minishift_start_options_string}} --{{item.key}} {{item.value}}"
+  with_dict: "{{__ms.start_options}}"
+
+- name: install_start | Run 'minishift start --profile {{ __ms.start_options.profile }}' command
+  shell: "minishift start {{ minishift_start_options_string }} > /tmp/minishift.out 2>&1"
+  environment:
+    # enable mounting /Users to the VM on OSX, it requires be tested
+    XHYVE_VIRTIO_9P: true
+  ignore_errors: yes
+
+- name: install_start | Grab the minishift output, stripping any special chars
+  shell: cat /tmp/minishift.out | tr -dc '[:print:]\n\r' | grep -v '==='
+  register: minishift_start_output
+
+- name: install_start | Cleanup output file
+  file:
+    path: /tmp/minishift.out
+    state: absent

@@ -1,0 +1,30 @@
+- name: deploy | Copy 'istioctl' to the 'bin' directory
+  copy:
+    src: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}/istio-{{ __i.repo.release_tag_name }}/bin/istioctl"
+    dest: "{{ __i.dir.local_bin }}/istioctl"
+    remote_src: yes
+    mode: 0775
+    force: yes
+  become: yes
+  become_user: root
+  when: __i.action.deploy.istioctl
+
+- name: deploy | Install Istio core
+  command: "oc apply -f istio-{{ __i.repo.release_tag_name }}/install/kubernetes/istio.yaml"
+  args:
+    chdir: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
+  when: __i.action.deploy.core
+
+- name: deploy | Install Istio addons
+  command: "oc apply -f {{ item }}"
+  with_items:
+    - "istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/prometheus.yaml"
+    - "istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/grafana.yaml"
+    - "istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/servicegraph.yaml"
+  args:
+    chdir: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
+  when: __i.action.deploy.addons
+
+## deploy istio sample application
+
+## get istioctl, copy it to bin and update PATH

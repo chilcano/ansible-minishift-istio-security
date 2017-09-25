@@ -1,0 +1,33 @@
+---
+istio_defaults:
+  minishift:
+    profile: openshift01
+    #public-hostname: openshift01
+    project: default
+  openshift:
+    admin_usr: "system:admin"
+    admin_pwd: anypassword
+    istio_usr: istio
+    istio_pwd: anypassword
+  repo:
+    github_url: https://github.com/istio/istio.git
+    api_github_url: https://api.github.com/repos/istio/istio/releases/tags
+    #release_tag_name: ""
+    #release_tag_name: "0.1.6"
+    release_tag_name: "0.1.5"
+  dir:
+    local_repo: /Users/Chilcano/Downloads/__kube_repo
+    local_tmp: /Users/Chilcano/Downloads/__kube_tmp
+    local_bin: /usr/local/bin
+  action_to_trigger: deploy  # [ deploy | fresh_install | clean]
+  action:
+    config_pre: true
+    deploy:
+      istioctl: true
+      core: true
+      addons: true
+    clean:
+      restore_config_pre: true
+      istioctl: true
+      core: true
+      addons: true

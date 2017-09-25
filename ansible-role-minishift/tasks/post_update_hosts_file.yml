@@ -1,0 +1,15 @@
+- name: post_update_hosts_file | Remove hostname '{{ __ms.start_options['public-hostname'] }}'
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "{{ __ms.start_options['public-hostname'] }}"
+    state: absent
+  become: yes
+  become_user: root
+
+- name: post_update_hosts_file | Updating '/etc/hosts' with '{{ instance_ip_address.stdout }} {{ __ms.start_options['public-hostname'] }}'
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^{{ instance_ip_address.stdout }}'
+    line: "{{ instance_ip_address.stdout }}  {{ __ms.start_options['public-hostname'] }}"
+  become: yes
+  become_user: root

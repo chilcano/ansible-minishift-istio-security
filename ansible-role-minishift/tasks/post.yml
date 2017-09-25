@@ -1,0 +1,15 @@
+- name: post | Get the IP address of '{{ __ms.start_options.profile }}' instance
+  command: "minishift --profile {{ __ms.start_options.profile }} ip"
+  register: instance_ip_address
+
+- name: post | Copy latest 'oc' client from '~/.minishift'
+  include: post_copy_oc.yml
+
+- name: post | Give cluster-admin to developer
+  include: post_grant_admin.yml
+
+- name: post | Create objects
+  include: post_create_objects.yml
+
+- name: post | Update '/etc/hosts' file
+  include: post_update_hosts_file.yml

@@ -1,0 +1,9 @@
+- name: clean | Check if 'docker-machine-driver-xhyve' is installed
+  command: brew info --installed docker-machine-driver-xhyve
+  register: output
+
+- name: clean | Remove 'docker-machine-driver-xhyve'
+  homebrew:
+    name: clean | docker-machine-driver-xhyve
+    state: present
+  when: not "'Not installed' in output.stdout" and __ms.action.clean.dependencies

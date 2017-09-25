@@ -1,0 +1,7 @@
+- name: clean_hostname_from_hosts_file | Remove hostname '{{ __ms.start_options['public-hostname'] }}'
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "{{ __ms.start_options['public-hostname'] }}"
+    state: absent
+  become: yes
+  become_user: root

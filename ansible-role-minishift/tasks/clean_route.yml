@@ -1,0 +1,17 @@
+- name: clean_route | Login as 'system:admin' in '{{ instance_ip_address.stdout }}:8443'
+  command: "oc login -u {{ __ms.openshift.admin_usr }} --server {{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
+
+- name: clean_route | Get all routes in Minishift '{{ __ms.start_options.profile }}'
+  command: "oc get route"
+  args:
+    chdir: "{{ __ms.dir.local_tmp }}"
+  register: minishift_routes_clean
+
+- name: clean_route | Defining the Minishift Docker Registry's route regex
+  set_fact:
+    minishift_docker_registry_route_regex: "{{ __ms.openshift.route_docker_registry.name }}(.+){{ __ms.start_options['public-hostname'] }}(.+){{ __ms.openshift.route_docker_registry.svc }}"
+
+- name: clean_route | Delete Docker Registry's route in Minishift '{{ __ms.start_options.profile }}'
+  command: "oc delete route {{ __ms.openshift.route_docker_registry.name }}"
+  ignore_errors: yes
+  when: minishift_routes_clean.stdout | regex_search(minishift_docker_registry_route_regex)

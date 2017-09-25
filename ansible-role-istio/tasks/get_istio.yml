@@ -1,0 +1,77 @@
+- name: get_istio | Get the tagged Istio release
+  uri:
+    url: "{{ __i.repo.api_github_url }}/{{ __i.repo.release_tag_name }}"
+  register: istio_release
+  when: __i.repo.release_tag_name != ''
+
+- name: get_istio | Set the tagged Istio release
+  set_fact:
+    istio_assets_url: "{{ istio_release.json.assets_url }}"
+  when: __i.repo.release_tag_name != ''
+
+- name: get_istio | Get the latest Istio release
+  uri:
+    url: "{{ __i.repo.github_url }}/{{ __i.repo.name }}/releases/latest"
+  register: istio_release
+  when: __i.repo.release_tag_name == ''
+
+- name: get_istio | Set the latest Istio release
+  set_fact:
+    istio_assets_url: "{{ istio_release.json.assets_url }}"
+  when: __i.repo.release_tag_name == ''
+
+- name: get_istio | Should have an 'istio_assets_url'
+  assert:
+    that: istio_assets_url is defined
+
+- name: get_istio | Show 'istio_assets_url'
+  debug:
+    var: istio_assets_url
+
+- name: get_istio | Get the list of Istio assets
+  uri:
+    url: "{{ istio_assets_url }}"
+  register: istio_assets
+
+- name: get_istio | Find the Mac asset
+  set_fact:
+    istio_asset_url: "{{ item.browser_download_url }}"
+    istio_asset_name: "{{ item.browser_download_url | basename }}"
+    istio_asset_name_without_ext: "{{ ( item.browser_download_url | basename ) | regex_replace('^(.+).tar.gz$', '\\1') }}"
+  with_items: "{{ istio_assets.json }}"
+  when: ( item.name | search('osx.tar.gz$') ) and ( istio_assets is defined and ansible_os_family == 'Darwin' )
+
+- name: get_istio | Find the Linux asset
+  set_fact:
+    istio_asset_url: "{{ item.browser_download_url }}"
+    istio_asset_name: "{{ item.browser_download_url | basename }}"
+    istio_asset_name_without_ext: "{{ ( item.browser_download_url | basename ) | regex_replace('^(.+).tar.gz$', '\\1') }}"
+  with_items: "{{ istio_assets.json }}"
+  when: ( item.name | search('linux.tar.gz$') ) and ( istio_assets is defined and ansible_os_family != 'Darwin' and ansible_os_family != 'Windows' )
+
+- name: get_istio | Should have an 'istio_asset_name'
+  assert:
+    that: istio_asset_name is defined
+
+- name: get_istio | Create '{{ istio_asset_name_without_ext }}' dir to unarchive
+  file:
+    path: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
+    state: directory
+    recurse: yes
+
+- name: get_istio | Download the asset for Istio
+  get_url:
+    url: "{{ istio_asset_url }}"
+    dest: "{{ __i.dir.local_repo }}/{{ istio_asset_name }}"
+
+- name: get_istio | Unzip the archive
+  command: "unzip {{ __i.dir.local_repo }}/{{ istio_asset_name }} -d {{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
+  args:
+    creates: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}/istio-{{ __i.repo.release_tag_name }}/bin/istioctl"
+  when: istio_asset_name | search('zip$')
+
+- name: get_istio | Untar the archive
+  command: "tar -xvzf {{ __i.dir.local_repo }}/{{ istio_asset_name }} -C {{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
+  args:
+    creates: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}/istio-{{ __i.repo.release_tag_name }}/bin/istioctl"
+  when: istio_asset_name | search('tar.gz$')

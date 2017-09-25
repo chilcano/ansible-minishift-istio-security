@@ -1,0 +1,23 @@
+- name: install | Include YML to install Docker machine driver
+  include: "install_driver_{{ ansible_os_family }}.yml"
+
+- name: install | Include YML to download Docker Machine for Minishift
+  include: "get_docker_iso.yml"
+  when: __ms.start_options['iso-url'] | regex_search('^https?://.+')
+
+- name: install | Include YML to download Minishift bundles
+  include: "get_minishift.yml"
+
+- name: install | Copy 'minishift' to the 'bin' directory
+  copy:
+    src: "{{ __ms.dir.local_repo }}/{{ asset_name_without_ext }}/minishift"
+    dest: "{{ __ms.dir.local_bin }}/minishift"
+    remote_src: yes
+    mode: 0775
+    force: yes
+  become: yes
+  become_user: root
+
+- name: install | Start Minishift
+  include: install_start.yml
+  when: __ms.action.start

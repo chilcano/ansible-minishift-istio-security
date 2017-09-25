@@ -1,0 +1,33 @@
+- name: install | Downlodad the KVM driver
+  get_url:
+    url: https://github.com/dhiltgen/docker-machine-kvm/releases/download/v0.7.0/docker-machine-driver-kvm
+    #dest: /usr/local/bin/docker-machine-driver-kvm
+    dest: "{{ __ms.dir.local_bin }}/docker-machine-driver-kvm"
+    mode: 0755
+  become: yes
+  become_user: root
+
+- name: install | Install packages
+  dnf:
+    name: install | "{{ item }}"
+    state: present
+  with_items:
+  - libvirt
+  - qemu-kvm
+  become: yes
+  become_user: root
+
+- name: install | Get current user
+  command: whoami
+  register: output
+
+- name: install | Add current user to libvirt group
+  user:
+    name: install | "{{ output.stdout }}"
+    groups: libvirt
+    append: yes
+  become: yes
+  become_user: root
+
+- name: install | Refresh user groups
+  shell: newgrp libvirt

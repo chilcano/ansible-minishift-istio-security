@@ -1,0 +1,25 @@
+---
+- name: Define 'minishift' hash as fact.
+  set_fact:
+     __ms: "{{ minishift_defaults | combine(minishift, recursive=True) }}"
+
+- name: Clean previous Minishift installation and generated files.
+  include: clean.yml
+  when: __ms.action_to_trigger in ['clean','fresh_install']
+
+- name: Install/Deploy Minishift.
+  include: install.yml
+  when: __ms.action_to_trigger in ['install','fresh_install']
+
+- name: Post configurations.
+  include: post.yml
+  when: __ms.action_to_trigger in ['install','fresh_install'] and __ms.action.post
+
+- name: Stop Minishift.
+  include: stop.yml
+  when: __ms.action_to_trigger in ['stop']
+
+- name: show | Show output
+  debug:
+    var: minishift_start_output
+  when: __ms.action_to_trigger in ['install','fresh_install']

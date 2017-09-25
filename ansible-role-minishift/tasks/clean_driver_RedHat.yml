@@ -1,0 +1,12 @@
+- name: clean | Remove downlodaded KVM driver
+  file:
+    path: "{{ __ms.dir.local_bin }}/docker-machine-driver-kvm"
+    state: absent
+
+- name: clean | Remove installed packages
+  dnf:
+    name: clean | "{{ item }}"
+    state: absent
+  with_items:
+  - libvirt
+  - qemu-kvm
