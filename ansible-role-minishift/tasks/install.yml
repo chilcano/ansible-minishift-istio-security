@@ -1,3 +1,15 @@
+- name: install | debug '__ms.start_options.profile'
+  debug:
+    var: __ms.start_options.profile
+
+- name: install | debug 'instance_status'
+  debug:
+    var: instance_status
+
+- name: install | debug 'instance_ip_address'
+  debug:
+    var: instance_ip_address
+
 - name: install | Include YML to install Docker machine driver
   include: "install_driver_{{ ansible_os_family }}.yml"
 
@@ -8,16 +20,16 @@
 - name: install | Include YML to download Minishift bundles
   include: "get_minishift.yml"
 
-- name: install | Copy 'minishift' to the 'bin' directory
-  copy:
-    src: "{{ __ms.dir.local_repo }}/{{ asset_name_without_ext }}/minishift"
-    dest: "{{ __ms.dir.local_bin }}/minishift"
-    remote_src: yes
-    mode: 0775
-    force: yes
-  become: yes
-  become_user: root
-
 - name: install | Start Minishift
   include: install_start.yml
   when: __ms.action.start
+
+- name: install | Using 'set_ipc_b2d.yml' for Standard Docker Machine
+  include: set_ip_b2d.yml
+  when: "'minishift-b2d.iso' in __ms.start_options['iso-url']"
+  # https://github.com/minishift/minishift-b2d-iso/releases/download/v1.1.0/minishift-b2d.iso
+
+- name: install | Using 'set_ip_centos7.yml' for Centos7 Docker Machine
+  include: set_ip_centos7.yml
+  when: "'minishift-centos7.iso' in __ms.start_options['iso-url']"
+  # https://github.com/minishift/minishift-centos-iso/releases/download/v1.1.0/minishift-centos7.iso

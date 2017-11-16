@@ -20,11 +20,12 @@
   command: "oc project {{ __i.minishift.project }}"
   when: minishift_projects.stdout | regex_search(regex_istio_prj)
 
+# https://istio.io/docs/setup/kubernetes/quick-start.html
 - name: config_pre | Preparing project "{{ __i.minishift.project }}"
   command: "{{ item }}"
   with_items:
-    - "oc adm policy add-scc-to-user anyuid -z {{ __i.minishift.project }}"
-    - "oc adm policy add-scc-to-user privileged -z {{ __i.minishift.project }}"
+    - "oc adm policy add-scc-to-user anyuid -z {{ __i.minishift.project }} -n istio-system"
+    - "oc adm policy add-scc-to-user privileged -z {{ __i.minishift.project }} -n {{ target_namespace ??????????? }}"
     - "oc patch scc/privileged --patch '{\"allowedCapabilities\":[\"NET_ADMIN\"]}'"
 
 - name: config_pre | Set admin permissions to manager, ingress and project/namespace
@@ -37,11 +38,11 @@
 - name: config_pre | Set add-scc-to-user to ingress
   command: "{{ item }}"
   with_items:
-    - "oc adm policy add-scc-to-user anyuid -z istio-ingress-service-account"
+    - "oc adm policy add-scc-to-user anyuid -z istio-ingress-service-account -n istio-system"
     - "oc adm policy add-scc-to-user privileged -z istio-ingress-service-account"
 
 - name: config_pre | Set add-scc-to-user to manager
   command: "{{ item }}"
   with_items:
-    - "oc adm policy add-scc-to-user anyuid -z istio-manager-service-account"
+    - "oc adm policy add-scc-to-user anyuid -z istio-manager-service-account -n istio-system"
     - "oc adm policy add-scc-to-user privileged -z istio-manager-service-account"

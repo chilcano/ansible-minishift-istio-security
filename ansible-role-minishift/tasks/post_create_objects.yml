@@ -8,8 +8,8 @@
     src: route.j2.yml
     dest: "{{ __ms.dir.local_tmp }}/route.yml"
 
-- name: post_create_objects | Login as 'system:admin' in '{{ instance_ip_address.stdout }}:8443'
-  command: "oc login -u {{ __ms.openshift.admin_usr }} --server {{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
+- name: post_create_objects | Login as 'system:admin' in '{{ __ms.start_options.profile }} / {{ instance_ip_address }}' port '8443'
+  command: "oc login -u {{ __ms.openshift.admin_usr }} --server https://{{ instance_ip_address }}:8443 --insecure-skip-tls-verify"
 
 - name: post_create_objects | Get all routes in Minishift '{{ __ms.start_options.profile }}'
   command: "oc get route"

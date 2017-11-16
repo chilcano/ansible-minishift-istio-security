@@ -1,22 +1,37 @@
-- name: clean_minishift | Get all Minishift profiles
-  command: "minishift profiles list"
-  register: minishift_profiles_clean
+- name: clean_minishift | debug '__ms.start_options.profile'
+  debug:
+    var: __ms.start_options.profile
 
-- name: clean_minishift | Defining the Minishift profile's regex
-  set_fact:
-    minishift_profile_regex: "- {{ __ms.start_options.profile }}(.+)"
+- name: clean_minishift | debug 'instance_status'
+  debug:
+    var: instance_status
 
-- name: clean_minishift | Get Minishift '{{ __ms.start_options.profile }}' status
-  command: "minishift --profile {{ __ms.start_options.profile }} status"
-  register: minishift_profile_clean_stat
-  when: minishift_profiles_clean.stdout | regex_search(minishift_profile_regex)
+- name: clean_minishift | debug 'instance_ip_address'
+  debug:
+    var: instance_ip_address
 
-### requires: $ pip install pexpect
-- name: clean_minishift | Delete Minishift profile '{{ __ms.start_options.profile }}'
+### requires '$ pip install pexpect' (on host that executes module)
+### set mac osx' hostname:
+# $ scutil --set ComputerName yourhostname
+# $ scutil --set LocalHostName yourhostname
+# $ scutil --set HostName yourhostname
+# $ scutil --get HostName
+- name: clean_minishift | Delete Minishift 'profile {{ __ms.start_options.profile }} / IP {{ instance_ip_address }}' and port '8443'
   expect:
     command: "minishift profile delete {{ __ms.start_options.profile }}"
     responses:
       "You are deleting the active profile. It will remove the VM and all related artifacts. Do you want to continue": "y"
       "Will remove the VM and all the related artifacts. Do you want to continue": "y"
     #timeout: 60
-  when: minishift_profiles_clean.stdout | regex_search(minishift_profile_regex) and ( 'Does Not Exist' in minishift_profile_clean_stat.stdout or __ms.action_to_trigger == 'clean' )
+    echo: yes
+  ### remove VM when it's status='Does Not Exist', if it's 'Running', the VM will stop
+  when: instance_status.stdout | regex_search('Does Not Exist') or __ms.action_to_trigger == 'clean'
+  delegate_to: 127.0.0.1
+
+- name: clean_minishift | Stop Minishift profile '{{ __ms.start_options.profile }}' is not 'Does Not Exist'
+  include: stop.yml
+
+- name: clean_minishift | Remove Kubernetes cache for '{{ __ms.start_options.profile }} / {{ instance_ip_address }}' and port '8443'
+  file:
+    path: "~/.kube/{{ instance_ip_address }}_8443"
+    state: absent

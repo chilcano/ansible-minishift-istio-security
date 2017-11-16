@@ -15,11 +15,11 @@
 - name: install | Set owner for docker-machine-driver-xyhve
   command: "chown root:wheel {{ prefix.stdout }}/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve"
   become: yes
-  become_user: root
+  ##become_user: root
   when: "'Not installed' in output.stdout"
 
 - name: install | Set permissions for docker-machine-driver-xhyve
   command: "chmod u+s {{ prefix.stdout }}/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve"
   become: yes
-  become_user: root
+  ##become_user: root
   when: "'Not installed' in output.stdout"

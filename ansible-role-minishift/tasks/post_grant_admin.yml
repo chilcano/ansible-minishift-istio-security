@@ -1,19 +1,11 @@
-#- name: post_grant_admin | Login as '{{ __ms.openshift.admin_usr }}' in '{{ instance_ip_address.stdout }}:8443'
-#  command: "oc login -u {{ __ms.openshift.admin_usr }} -p {{ __ms.openshift.admin_pwd }} --server {{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
+- name: post_grant_admin | Login as '{{ __ms.openshift.admin_usr }}' in '{{ __ms.start_options.profile }} / {{ instance_ip_address }}' port '8443'
+  command: "oc login -u {{ __ms.openshift.admin_usr }} --server https://{{ instance_ip_address }}:8443 --insecure-skip-tls-verify"
 
-- name: post_grant_admin | Login as '{{ __ms.openshift.admin_usr }}' in '{{ instance_ip_address.stdout }}:8443'
-  command: "oc login -u {{ __ms.openshift.admin_usr }} --server {{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
-
-#- name: post_grant_admin | Grant 'cluster-admin' to '{{ __ms.openshift.developer_usr }}' in '{{ instance_ip_address.stdout }}:8443'
-#  command: "oc adm policy add-cluster-role-to-user cluster-admin {{ __ms.openshift.developer_usr }} --server {{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
-
-- name: post_grant_admin | Grant 'cluster-admin' to '{{ __ms.openshift.developer_usr }}' in '{{ instance_ip_address.stdout }}:8443'
+- name: post_grant_admin | Grant 'cluster-admin' to '{{ __ms.openshift.developer_usr }}' in '{{ instance_ip_address }}:8443'
   command: "oc adm policy add-cluster-role-to-user cluster-admin {{ __ms.openshift.developer_usr }}"
 
-- name: post_grant_admin | Log in as '{{ __ms.openshift.developer_usr }}' in '{{ instance_ip_address.stdout }}:8443'
-  command: "oc login -u {{ __ms.openshift.developer_usr }} -p {{ __ms.openshift.developer_pwd }} --server {{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
+- name: post_grant_admin | Log in as '{{ __ms.openshift.developer_usr }}' in '{{ instance_ip_address }}:8443'
+  command: "oc login -u {{ __ms.openshift.developer_usr }} -p {{ __ms.openshift.developer_pwd }} --server https://{{ instance_ip_address }}:8443 --insecure-skip-tls-verify"
 
 - name: post_grant_admin | Set the namespace to 'default'
   command: "oc project default"
-
-### once logged in as developer, apply the route

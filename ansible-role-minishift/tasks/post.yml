@@ -1,6 +1,15 @@
-- name: post | Get the IP address of '{{ __ms.start_options.profile }}' instance
-  command: "minishift --profile {{ __ms.start_options.profile }} ip"
-  register: instance_ip_address
+
+- name: post | debug '__ms.start_options.profile'
+  debug:
+    var: __ms.start_options.profile
+
+- name: post | debug 'instance_status'
+  debug:
+    var: instance_status
+
+- name: post | debug 'instance_ip_address'
+  debug:
+    var: instance_ip_address
 
 - name: post | Copy latest 'oc' client from '~/.minishift'
   include: post_copy_oc.yml

@@ -1,21 +1,6 @@
-- name: clean | Check if Minishift binary exists in '{{ __ms.dir.local_bin }}'
-  stat:
-    path: "{{ __ms.dir.local_bin }}/minishift"
-  register: minishift_cli
-
-- name: clean | Get the Minishift status of '{{ __ms.start_options.profile }}'
-  command: "minishift --profile {{ __ms.start_options.profile }} status"
-  register: instance_stat
-  when: minishift_cli.stat.exists
-
-- name: clean | Get the IP address of '{{ __ms.start_options.profile }}' instance
-  command: "minishift --profile {{ __ms.start_options.profile }} ip"
-  register: instance_ip_address
-  when: instance_stat.stdout | search('Running')
-
 - name: clean | Remove Docker Registry's route
   include: clean_route.yml
-  when:  instance_stat.stdout | search('Running') and instance_ip_address is defined and ((not __ms.action_to_trigger in ['stop']) or __ms.action_to_trigger in ['fresh_install'] or (not __ms.action.clean.installation))
+  when:  instance_status.stdout | search('Running') and instance_ip_address is defined and ( not __ms.action.clean.installation )
 
 - name: clean | Remove current Minishift instance
   include: clean_minishift.yml

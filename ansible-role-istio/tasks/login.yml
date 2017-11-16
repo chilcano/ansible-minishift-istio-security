@@ -31,6 +31,6 @@
   register: instance_ip_address
   when: instance_stat.stdout | search('Running')
 
-- name: login | Login as 'system:admin' in '{{ instance_ip_address.stdout }}:8443'
-  command: "oc login -u {{ __i.openshift.admin_usr }} --server {{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
+- name: login | Login as 'system:admin' in '{{ __i.minishift.profile }} / {{ instance_ip_address.stdout }}' port '8443'
+  command: "oc login -u {{ __i.openshift.admin_usr }} --server https://{{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
   when:  instance_stat.stdout | search('Running') and instance_ip_address is defined

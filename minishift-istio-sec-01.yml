@@ -1,32 +1,95 @@
 ---
-#
-# ansible-playbook -i inventory minishift-istio-sec-01.yml --ask-become-pass  
-#
+# ansible-playbook -i inventory minishift-istio-sec-01.yml --ask-become-pass
+
 - name: Install Minishift demo.
-  hosts: Pisco0
+  hosts: Pisc0
   connection: local
   gather_facts: yes
+  vars:
+    ms_hostname_and_profile: openshift1
+
   roles:
     - role: ansible-role-minishift
       minishift:
-        action_to_trigger: fresh_install  # [ install | fresh_install | clean | stop ]
+        action_to_trigger: install # [ install | fresh_install | clean | stop ]
+        action:
+          clean:
+            installation: true
+            local_repo: false
+            local_tmp: false
+            dependencies: false
+          install: true
+          #start: false
+          start: true
+          post: true
         start_options:
           vm-driver: virtualbox
-          #iso-url: file:///Users/Chilcano/Downloads/__kube_repo/minishift-b2d-iso/v1.1.0/minishift-b2d.iso
+          iso-url: file:///Users/Chilcano/Downloads/__kube_repo/minishift-b2d-iso/v1.1.0/minishift-b2d.iso
           #iso-url: file:///Users/Chilcano/Downloads/__kube_repo/minishift-centos-iso/v1.1.0/minishift-centos7.iso
+          #iso-url: file:///Users/Chilcano/Downloads/__kube_repo/minishift-centos-iso/39/minishift-centos7.iso
           #iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.1.0/minishift-b2d.iso
-          iso-url: https://github.com/minishift/minishift-centos-iso/releases/download/v1.1.0/minishift-centos7.iso
-          public-hostname: openshift02
-          profile: openshift02
-          #public-hostname: openshift01
-          #profile: openshift01
+          #iso-url: https://github.com/minishift/minishift-centos-iso/releases/download/v1.1.0/minishift-centos7.iso
+          #iso-url: http://artifacts.ci.centos.org/minishift/minishift-centos-iso/master/39/minishift-centos7.iso
+          public-hostname: "{{ ms_hostname_and_profile }}"
+          profile: "{{ ms_hostname_and_profile }}"
+          openshift-version: ""  # latest (https://hub.docker.com/r/openshift/origin/tags)
+          #openshift-version: "v3.6.1"
+          #openshift-version: "v3.6.0"
+          #openshift-version: "v1.5.1"  # v3.5.1
+          #openshift-version: "v1.5.0"  # v3.5.0
+          show-libmachine-logs: ""
+        openshift:
+          admin_usr: "system:admin"
+          admin_pwd: anypassword
+          developer_usr: developer
+          developer_pwd: anypassword
+        repo:
+          name: minishift/minishift
+          release_tag_name: "" # latest
+          #release_tag_name: "v1.8.0"
+          #release_tag_name: "v1.7.0"
+          #release_tag_name: "v1.6.0"
 
 - name: Install Istio demo.
-  hosts: Pisco0
+  hosts: Pisc0
   connection: local
   gather_facts: yes
+  vars:
+    istio_ms_hostname_and_profile: openshift1
+
   roles:
     - role: ansible-role-istio
       istio:
+        action_to_trigger: deploy  # [ deploy | fresh_install | clean ]
+        action:
+          config_pre: true
+          deploy:
+            istioctl: true
+            core: true
+            addons: true
+            sample_apps: true
+          clean:
+            restore_config_pre: true
+            istioctl: true
+            core: true
+            addons: true
+            sample_apps: true
         minishift:
-          profile: openshift02
+          profile: "{{ istio_ms_hostname_and_profile }}"
+        openshift:
+          admin_usr: "system:admin"
+          admin_pwd: anypassword
+          istio_usr: developer
+          istio_pwd: anypassword
+        repo:
+          #release_tag_name: "0.2.12"
+          #release_tag_name: "0.2.10"
+          #release_tag_name: "0.2.9"
+          release_tag_name: "0.2.7"
+          #release_tag_name: "0.2.6"
+          #release_tag_name: "0.2.4"
+          #release_tag_name: "0.2.2"
+          #release_tag_name: "0.2.1"
+          #release_tag_name: "0.2.0"
+          #release_tag_name: "0.1.6"
+          #release_tag_name: "0.1.5"

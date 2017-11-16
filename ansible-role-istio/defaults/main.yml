@@ -12,9 +12,7 @@ istio_defaults:
   repo:
     github_url: https://github.com/istio/istio.git
     api_github_url: https://api.github.com/repos/istio/istio/releases/tags
-    #release_tag_name: ""
-    #release_tag_name: "0.1.6"
-    release_tag_name: "0.1.5"
+    release_tag_name: ""
   dir:
     local_repo: /Users/Chilcano/Downloads/__kube_repo
     local_tmp: /Users/Chilcano/Downloads/__kube_tmp
@@ -26,8 +24,10 @@ istio_defaults:
       istioctl: true
       core: true
       addons: true
+      sample_apps: true
     clean:
       restore_config_pre: true
       istioctl: true
       core: true
       addons: true
+      sample_apps: true

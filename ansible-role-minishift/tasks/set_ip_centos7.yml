@@ -1,0 +1,7 @@
+- name: set_ip_centos7 | Copy 'minishift-ipconfig-centos7' script to '{{ __ms.dir.local_bin }}'
+  template:
+    src: minishift-ipconfig-centos7.j2.sh
+    dest: "{{ __ms.dir.local_bin }}/minishift-ipconfig-centos7.sh"
+    mode: 0755
+    remote_src: yes
+  become: yes

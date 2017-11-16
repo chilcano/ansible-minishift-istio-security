@@ -6,7 +6,7 @@
     mode: 0775
     force: yes
   become: yes
-  become_user: root
+  #become_user: root
   when: __i.action.deploy.istioctl
 
 - name: deploy | Install Istio core
@@ -25,6 +25,8 @@
     chdir: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
   when: __i.action.deploy.addons
 
-## deploy istio sample application
+- name: deploy | Install Istio Sample Apps
+  include: deploy_sample_apps.yml
+  when: __i.action.deploy.sample_apps
 
 ## get istioctl, copy it to bin and update PATH

@@ -3,7 +3,7 @@
     path: "{{ __i.dir.local_bin }}/istioctl"
     state: absent
   become: yes
-  become_user: root
+  #become_user: root
   when: __i.action.clean.istioctl
 
 - name: clean | Check if Istio core has been installed
