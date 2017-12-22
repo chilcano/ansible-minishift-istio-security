@@ -1,12 +1,12 @@
-- name: clean_minishift | debug '__ms.start_options.profile'
+- name: clean_minishift | Debug '__ms.start_options.profile'
   debug:
     var: __ms.start_options.profile
 
-- name: clean_minishift | debug 'instance_status'
+- name: clean_minishift | Debug 'instance_status'
   debug:
     var: instance_status
 
-- name: clean_minishift | debug 'instance_ip_address'
+- name: clean_minishift | Debug 'instance_ip_address'
   debug:
     var: instance_ip_address
 
@@ -24,7 +24,8 @@
       "Will remove the VM and all the related artifacts. Do you want to continue": "y"
     #timeout: 60
     echo: yes
-  ### remove VM when it's status='Does Not Exist', if it's 'Running', the VM will stop
+  ### It removes the VM when status='Does Not Exist' or 'action_to_trigger' is 'clean'. If VM is 'Running', then VM will be stopped and reuse it.
+  ### If 'action_to_trigger' is 'fresh_install', then the VM will be stopped and reuse it.
   when: instance_status.stdout | regex_search('Does Not Exist') or __ms.action_to_trigger == 'clean'
   delegate_to: 127.0.0.1
 

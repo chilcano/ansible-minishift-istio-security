@@ -9,14 +9,14 @@
 - name: Login to active Minishift instance.
   include: login.yml
 
-- name: Preparing Istio.
-  include: config_pre.yml
-  when: __i.action.config_pre
+#- name: Preparing Istio.
+#  include: config_pre.yml
+#  when: __i.action.config_pre
 
 - name: Clean previous Istio installation.
   include: clean.yml
   when: __i.action_to_trigger == 'clean' or __i.action_to_trigger == 'fresh_install'
 
-- name: Deploy Istio.
+- name: Pre Configure and Deploy Istio.
   include: deploy.yml
   when: __i.action_to_trigger == 'deploy' or __i.action_to_trigger == 'fresh_install'

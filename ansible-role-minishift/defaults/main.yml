@@ -1,27 +1,5 @@
 ---
 minishift_defaults:
-  repo:
-    name: minishift/minishift
-    github_url: https://api.github.com/repos
-    release_tag_name: ""          # it's latest
-  start_options:
-    vm-driver: virtualbox
-    iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.1.0/minishift-b2d.iso
-    public-hostname: host.minishift01
-    profile: profile.minishift01  # used to set the VM name (dont use '_')
-    openshift-version: ""         # it's latest (https://hub.docker.com/r/openshift/origin/tags/)
-  openshift:
-    admin_usr: "system:admin"
-    admin_pwd: anypassword
-    developer_usr: developer
-    developer_pwd: anypassword
-    route_docker_registry:
-      name: registry-access       # you can change it, it's an identifier
-      svc: docker-registry        # don't change it
-  dir:
-    local_repo: /Users/Chilcano/Downloads/__kube_repo
-    local_tmp: /Users/Chilcano/Downloads/__kube_tmp
-    local_bin: /usr/local/bin
   action_to_trigger: fresh_install  # [ install | fresh_install (doesnt remove VM) | clean | stop ]
   action:
     clean:
@@ -31,4 +9,25 @@ minishift_defaults:
       dependencies: false
     install: true
     start: true
-    post: true
+    ##post: true
+  dir:
+    local_repo: /Users/Chilcano/Downloads/__kube_repo
+    local_tmp: /Users/Chilcano/Downloads/__kube_tmp
+    local_bin: /usr/local/bin
+  post_copy_oc: false
+  start_options:
+    vm-driver: virtualbox
+    iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.1.0/minishift-b2d.iso
+    ##public-hostname: host.minishift01    ## removed because doesnt work
+    profile: profile.minishift01  # used to set the VM name (dont use '_')
+    openshift-version: ""         # it's latest (https://hub.docker.com/r/openshift/origin/tags/)
+  openshift:
+    admin_usr: "system:admin"
+    admin_pwd: anypassword
+    route_docker_registry:
+      name: registry-access       # you can change it, it's an identifier
+      svc: docker-registry        # don't change it
+  repo:
+    name: minishift/minishift
+    github_url: https://api.github.com/repos
+    release_tag_name: ""          # it's latest

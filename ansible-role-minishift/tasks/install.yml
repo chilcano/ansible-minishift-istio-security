@@ -1,12 +1,12 @@
-- name: install | debug '__ms.start_options.profile'
+- name: install | Debug '__ms.start_options.profile'
   debug:
     var: __ms.start_options.profile
 
-- name: install | debug 'instance_status'
+- name: install | Debug 'instance_status'
   debug:
     var: instance_status
 
-- name: install | debug 'instance_ip_address'
+- name: install | Debug 'instance_ip_address'
   debug:
     var: instance_ip_address
 
@@ -21,15 +21,20 @@
   include: "get_minishift.yml"
 
 - name: install | Start Minishift
-  include: install_start.yml
+  include: install_start_minishift.yml
   when: __ms.action.start
 
-- name: install | Using 'set_ipc_b2d.yml' for Standard Docker Machine
-  include: set_ip_b2d.yml
-  when: "'minishift-b2d.iso' in __ms.start_options['iso-url']"
+## ToDo: to set static IP for Docker image based on Debian
+#- name: install | Using 'set_ipc_b2d.yml' for Standard Docker Machine
+#  include: set_ip_b2d.yml
+#  when: "'minishift-b2d.iso' in __ms.start_options['iso-url']"
   # https://github.com/minishift/minishift-b2d-iso/releases/download/v1.1.0/minishift-b2d.iso
 
-- name: install | Using 'set_ip_centos7.yml' for Centos7 Docker Machine
-  include: set_ip_centos7.yml
-  when: "'minishift-centos7.iso' in __ms.start_options['iso-url']"
+## ToDo: to set static IP for Docker image based on Centos7
+#- name: install | Using 'set_ip_centos7.yml' for Centos7 Docker Machine
+#  include: set_ip_centos7.yml
+#  when: "'minishift-centos7.iso' in __ms.start_options['iso-url']"
   # https://github.com/minishift/minishift-centos-iso/releases/download/v1.1.0/minishift-centos7.iso
+
+- name: install | Update '/etc/hosts' file
+  include: install_update_hosts_file.yml

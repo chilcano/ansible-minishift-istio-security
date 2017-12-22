@@ -1,0 +1,28 @@
+- name: post_add_docker_reg_route | Create a tmp dir to run commands
+  file:
+    path: "{{ __ms.dir.local_tmp }}"
+    state: directory
+
+- name: post_add_docker_reg_route | Copy template 'route.yml'
+  template:
+    src: route.j2.yml
+    dest: "{{ __ms.dir.local_tmp }}/route.yml"
+
+- name: post_add_docker_reg_route | Login as '{{ __ms.openshift.admin_usr }}' in '{{ __ms.start_options.profile }} / {{ instance_ip_address }}' port '8443'
+  command: "{{ my_oc }} login -u {{ __ms.openshift.admin_usr }} --server https://{{ instance_ip_address }}:8443 --insecure-skip-tls-verify"
+
+- name: post_add_docker_reg_route | Get all routes in Minishift '{{ __ms.start_options.profile }}'
+  command: "{{ my_oc }} get route"
+  args:
+    chdir: "{{ __ms.dir.local_tmp }}"
+  register: minishift_routes
+
+- name: post_add_docker_reg_route | Defining the Minishift Docker Registry's route regex
+  set_fact:
+    minishift_docker_registry_route_regex: "{{ __ms.openshift.route_docker_registry.name }}(.+){{ __ms.start_options['public-hostname'] }}(.+){{ __ms.openshift.route_docker_registry.svc }}"
+
+- name: post_add_docker_reg_route | Add Docker Registry's route in '{{ __ms.start_options.profile }}'
+  command: "{{ my_oc }} create -f route.yml"
+  args:
+    chdir: "{{ __ms.dir.local_tmp }}"
+  when: not minishift_routes.stdout | regex_search(minishift_docker_registry_route_regex)

@@ -1,3 +1,57 @@
+### config_pre
+
+- name: config_pre | Set admin permissions to Istio user
+  command: "oc adm policy add-cluster-role-to-user cluster-admin {{ __i.openshift.istio_usr }}"
+
+- name: config_pre | Login with Istio user in '{{ __i.minishift.profile }} / {{ instance_ip_address.stdout }}' port '8443'
+  command: "oc login -u {{ __i.openshift.istio_usr }} -p {{ __i.openshift.istio_pwd }} --server https://{{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
+
+- name: config_pre | Check if exists project "{{ __i.minishift.project }}"
+  command: "oc get projects"
+  register: minishift_projects
+
+- name: config_pre | Defining the Istio project regex
+  set_fact:
+    regex_istio_prj: "{{ __i.minishift.project }}(.+)Active"
+
+- name: config_pre | Create new project "{{ __i.minishift.project }}"
+  command: "oc new-project {{ __i.minishift.project }}"
+  when: not minishift_projects.stdout | regex_search(regex_istio_prj)
+
+- name: config_pre | Switch to project "{{ __i.minishift.project }}"
+  command: "oc project {{ __i.minishift.project }}"
+  when: minishift_projects.stdout | regex_search(regex_istio_prj)
+
+- name: config_pre | Preparing project "{{ __i.minishift.project }}"
+  command: "{{ item }}"
+  with_items:
+    - "oc adm policy add-scc-to-user anyuid -z {{ __i.minishift.project }}"
+    - "oc adm policy add-scc-to-user privileged -z {{ __i.minishift.project }}"
+    - "oc patch scc/privileged --patch '{\"allowedCapabilities\":[\"NET_ADMIN\"]}'"
+
+- name: config_pre | Set admin permissions to manager, ingress and project/namespace
+  command: "oc adm policy add-cluster-role-to-user cluster-admin -z {{ item }}"
+  with_items:
+    - istio-manager-service-account
+    - istio-ingress-service-account
+    - "{{ __i.minishift.project }}"
+
+- name: config_pre | Set add-scc-to-user to ingress
+  command: "{{ item }}"
+  with_items:
+    - "oc adm policy add-scc-to-user anyuid -z istio-ingress-service-account"
+    - "oc adm policy add-scc-to-user privileged -z istio-ingress-service-account"
+
+- name: config_pre | Set add-scc-to-user to manager
+  command: "{{ item }}"
+  with_items:
+    - "oc adm policy add-scc-to-user anyuid -z istio-manager-service-account"
+    - "oc adm policy add-scc-to-user privileged -z istio-manager-service-account"
+
+
+
+### deploy
+
 - name: deploy | Copy 'istioctl' to the 'bin' directory
   copy:
     src: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}/istio-{{ __i.repo.release_tag_name }}/bin/istioctl"

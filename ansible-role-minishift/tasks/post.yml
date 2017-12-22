@@ -1,24 +1,54 @@
-
-- name: post | debug '__ms.start_options.profile'
+- name: post | Debug '__ms.start_options.profile'
   debug:
     var: __ms.start_options.profile
 
-- name: post | debug 'instance_status'
+- name: post | Debug 'instance_status'
   debug:
     var: instance_status
 
-- name: post | debug 'instance_ip_address'
+- name: post | Debug 'instance_ip_address'
   debug:
     var: instance_ip_address
 
-- name: post | Copy latest 'oc' client from '~/.minishift'
-  include: post_copy_oc.yml
+- name: post | Check if 'oc' binary exists in PATH
+  stat:
+    path: "{{ __ms.dir.local_bin }}/oc"
+  register: oc_current_client
 
-- name: post | Give cluster-admin to developer
-  include: post_grant_admin.yml
+- name: post | Get the path to the 'oc' client for Minishift '{{ __ms.start_options.profile }}' instance
+  find:
+    #paths: "{{ lookup('env', 'HOME') }}/.minishift/profiles/{{ __ms.start_options.profile }}/cache/oc"
+    paths: "{{ lookup('env', 'HOME') }}/.minishift/cache/oc/"
+    #patterns: "v*"
+    patterns: "{{ ansible_os_family | lower }}"
+    recurse: yes
+    hidden: yes
+    file_type: directory
+  register: oc_versions
 
-- name: post | Create objects
-  include: post_create_objects.yml
+- name: post | Initializing 'my_oc' fact
+  set_fact:
+    my_oc: "{{ __ms.dir.local_bin }}/oc"
 
-- name: post | Update '/etc/hosts' file
-  include: post_update_hosts_file.yml
+- name: post | Set 'my_oc' with last value of 'oc_versions.files'
+  set_fact:
+    my_oc: "{{ (oc_versions.files | last).path }}/oc"
+  when: oc_versions.files | length == 1 and not oc_current_client.stat.exists and not __ms.post_copy_oc
+
+- name: post | Copy or overwrite 'oc' client in PATH
+  copy:
+    src: "{{ (oc_versions.files | last).path }}/oc"
+    dest: "{{ __ms.dir.local_bin }}/oc"
+    mode: 0755
+    remote_src: yes
+  become: yes
+  when: oc_versions.files | length == 1 and __ms.post_copy_oc
+
+#- name: post | Grant 'cluster-admin' to 'developer'
+#  include: post_grant_cluster_admin.yml
+
+#- name: post | Add Docker Registry route
+#  include: post_add_docker_reg_route.yml
+
+- name: post | Login as '{{ __ms.openshift.admin_usr }}' in '{{ __ms.start_options.profile }} / {{ instance_ip_address }}' port '8443'
+  command: "{{ my_oc }} login -u {{ __ms.openshift.admin_usr }} --server https://{{ instance_ip_address }}:8443 --insecure-skip-tls-verify"

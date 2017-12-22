@@ -1,0 +1,11 @@
+- name: post_grant_cluster_admin | Login as '{{ __ms.openshift.admin_usr }}' in '{{ __ms.start_options.profile }} / {{ instance_ip_address }}' port '8443'
+  command: "{{ my_oc }} login -u {{ __ms.openshift.admin_usr }} --server https://{{ instance_ip_address }}:8443 --insecure-skip-tls-verify"
+
+- name: post_grant_cluster_admin | Grant 'cluster-admin' to '{{ __ms.openshift.developer_usr }}' in '{{ instance_ip_address }}:8443'
+  command: "{{ my_oc }} adm policy add-cluster-role-to-user cluster-admin {{ __ms.openshift.developer_usr }}"
+
+- name: post_grant_cluster_admin | Log in as '{{ __ms.openshift.developer_usr }}' in '{{ instance_ip_address }}:8443'
+  command: "{{ my_oc }} login -u {{ __ms.openshift.developer_usr }} -p {{ __ms.openshift.developer_pwd }} --server https://{{ instance_ip_address }}:8443 --insecure-skip-tls-verify"
+
+- name: post_grant_cluster_admin | Set the namespace to 'default'
+  command: "{{ my_oc }} project default"

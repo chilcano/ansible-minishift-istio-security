@@ -1,7 +1,7 @@
-- name: clean_hostname_from_hosts_file | Remove hostname '{{ __ms.start_options['public-hostname'] }}'
+- name: clean_hostname_from_hosts_file | Remove hostname '{{ __ms.start_options['profile'] }}'
   lineinfile:
     dest: /etc/hosts
-    regexp: "{{ __ms.start_options['public-hostname'] }}"
+    regexp: "{{ __ms.start_options['profile'] }}"
     state: absent
   become: yes
   #become_user: root

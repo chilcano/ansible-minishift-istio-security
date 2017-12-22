@@ -1,8 +1,33 @@
+- name: clean_route | Check if 'oc' binary exists in PATH
+  stat:
+    path: "{{ __ms.dir.local_bin }}/oc"
+  register: oc_current_client
+
+- name: clean_route | Get the path to the 'oc' client for Minishift '{{ __ms.start_options.profile }}' instance
+  find:
+    #paths: "{{ lookup('env', 'HOME') }}/.minishift/profiles/{{ __ms.start_options.profile }}/cache/oc"
+    paths: "{{ lookup('env', 'HOME') }}/.minishift/cache/oc/"
+    #patterns: "v*"
+    patterns: "{{ ansible_os_family | lower }}"
+    recurse: yes
+    hidden: yes
+    file_type: directory
+  register: oc_versions
+
+- name: clean_route | Initializing 'my_oc' fact
+  set_fact:
+    my_oc: "{{ __ms.dir.local_bin }}/oc"
+
+- name: clean_route | Set 'my_oc' with last value of 'oc_versions.files'
+  set_fact:
+    my_oc: "{{ (oc_versions.files | last).path }}/oc"
+  #when: oc_versions.files | length == 1 and not oc_current_client.stat.exists and not __ms.post_copy_oc
+
 - name: clean_route | Login as 'system:admin' in '{{ __ms.start_options.profile }} / {{ instance_ip_address }}' port '8443'
-  command: "oc login -u {{ __ms.openshift.admin_usr }} --server https://{{ instance_ip_address }}:8443 --insecure-skip-tls-verify" 
+  command: "{{ my_oc }} login -u {{ __ms.openshift.admin_usr }} --server https://{{ instance_ip_address }}:8443 --insecure-skip-tls-verify"
 
 - name: clean_route | Get all routes in Minishift '{{ __ms.start_options.profile }}'
-  command: "oc get route"
+  command: "{{ my_oc }} get route"
   args:
     chdir: "{{ __ms.dir.local_tmp }}"
   register: minishift_routes_clean
@@ -12,6 +37,6 @@
     minishift_docker_registry_route_regex: "{{ __ms.openshift.route_docker_registry.name }}(.+){{ __ms.start_options['public-hostname'] }}(.+){{ __ms.openshift.route_docker_registry.svc }}"
 
 - name: clean_route | Delete Docker Registry's route in Minishift '{{ __ms.start_options.profile }}'
-  command: "oc delete route {{ __ms.openshift.route_docker_registry.name }}"
+  command: "{{ my_oc }} delete route {{ __ms.openshift.route_docker_registry.name }}"
   ignore_errors: yes
   when: minishift_routes_clean.stdout | regex_search(minishift_docker_registry_route_regex)

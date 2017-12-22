@@ -20,6 +20,7 @@
   command: "oc project {{ __i.minishift.project }}"
   when: minishift_projects.stdout | regex_search(regex_istio_prj)
 
+####
 - name: config_pre | Preparing project "{{ __i.minishift.project }}"
   command: "{{ item }}"
   with_items:

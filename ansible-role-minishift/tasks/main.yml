@@ -31,15 +31,15 @@
   include: install.yml
   when: __ms.action_to_trigger in ['install','fresh_install']
 
-- name: main | Post configurations.
-  include: post.yml
-  when: __ms.action_to_trigger in ['install','fresh_install'] and __ms.action.post and instance_ip_address != ''
-
-- name: main | Stop Minishift.
-  include: stop.yml
-  when: __ms.action_to_trigger in ['stop']
-
 - name: main | Show output.
   debug:
     var: minishift_start_output
   when: __ms.action_to_trigger in ['install','fresh_install']
+
+- name: main | Post configurations.
+  include: post.yml
+  when: __ms.action_to_trigger in ['install','fresh_install'] and instance_ip_address != ''
+
+#- name: main | Stop Minishift.
+#  include: stop.yml
+#  when: __ms.action_to_trigger in ['stop']

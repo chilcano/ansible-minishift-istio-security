@@ -1,12 +1,12 @@
-- name: stop | debug '__ms.start_options.profile'
+- name: stop | Debug '__ms.start_options.profile'
   debug:
     var: __ms.start_options.profile
 
-- name: stop | debug 'instance_status'
+- name: stop | Debug 'instance_status'
   debug:
     var: instance_status
 
-- name: stop | debug 'instance_ip_address'
+- name: stop | Debug 'instance_ip_address'
   debug:
     var: instance_ip_address
 

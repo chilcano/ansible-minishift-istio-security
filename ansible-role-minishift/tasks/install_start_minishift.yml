@@ -1,39 +1,39 @@
-- name: install_start | Initializing 'minishift_start_options_string' fact
+- name: install_start_minishift | Initializing 'minishift_start_options_string' fact
   set_fact:
     minishift_start_options_string: ""
 
-- name: install_start | Concatenating 'minishift_start_options_string' fact
+- name: install_start_minishift | Concatenating 'minishift_start_options_string' fact
   set_fact:
     minishift_start_options_string: "{{minishift_start_options_string}} --{{item.key}} {{item.value}}"
   with_dict: "{{__ms.start_options}}"
   when: ( item.key in ['show-libmachine-logs','skip-registry-check','skip-registration','metrics','logging'] ) or ( item.value != '' )
 
-- name: install_start | Run 'minishift start --profile {{ __ms.start_options.profile }}' command
+- name: install_start_minishift | Run 'minishift start --profile {{ __ms.start_options.profile }}' command
   shell: "minishift start {{ minishift_start_options_string }} > /tmp/minishift.out 2>&1"
   environment:
     # enable mounting /Users to the VM on OSX, it requires be tested
     XHYVE_VIRTIO_9P: true
   ignore_errors: yes
 
-- name: install_start | Get latest Minishift status of '{{ __ms.start_options.profile }}'
+- name: install_start_minishift | Get latest Minishift status of '{{ __ms.start_options.profile }}'
   command: "minishift --profile {{ __ms.start_options.profile }} status"
   register: instance_status
 
-- name: install_start | Get latest IP address of '{{ __ms.start_options.profile }}' instance
+- name: install_start_minishift | Get latest IP address of '{{ __ms.start_options.profile }}' instance
   command: "minishift --profile {{ __ms.start_options.profile }} ip"
   register: ip_addr
   when: instance_status.stdout | search('Running')
 
-- name: install_start | Update the IP Address of '{{ __ms.start_options.profile }}' with latest value
+- name: install_start_minishift | Update the IP Address of '{{ __ms.start_options.profile }}' with latest value
   set_fact:
     minishift_profile_regex: "- {{ __ms.start_options.profile }}(.+)"
     instance_ip_address: "{{ ip_addr.stdout | default('') }}"
 
-- name: install_start | Grab the minishift output, stripping any special chars
+- name: install_start_minishift | Grab the minishift output, stripping any special chars
   shell: cat /tmp/minishift.out | tr -dc '[:print:]\n\r' | grep -v '==='
   register: minishift_start_output
 
-- name: install_start | Cleanup output file
+- name: install_start_minishift | Cleanup output file
   file:
     path: /tmp/minishift.out
     state: absent
