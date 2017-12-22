@@ -1,6 +1,6 @@
 ---
 minishift_defaults:
-  action_to_trigger: fresh_install  # [ install | fresh_install (doesnt remove VM) | clean | stop ]
+  action_to_trigger: fresh_install  # [ install | fresh_install (doesnt remove VM) | clean ]
   action:
     clean:
       installation: true
@@ -9,7 +9,6 @@ minishift_defaults:
       dependencies: false
     install: true
     start: true
-    ##post: true
   dir:
     local_repo: /Users/Chilcano/Downloads/__kube_repo
     local_tmp: /Users/Chilcano/Downloads/__kube_tmp
@@ -18,8 +17,8 @@ minishift_defaults:
   start_options:
     vm-driver: virtualbox
     iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.1.0/minishift-b2d.iso
-    ##public-hostname: host.minishift01    ## removed because doesnt work
-    profile: profile.minishift01  # used to set the VM name (dont use '_')
+    ##public-hostname: host.minishift01    # removed because doesnt work (https://github.com/minishift/minishift/issues/1843)
+    profile: minishift01          # used to set the VM name (dont use '_')
     openshift-version: ""         # it's latest (https://hub.docker.com/r/openshift/origin/tags/)
   openshift:
     admin_usr: "system:admin"
