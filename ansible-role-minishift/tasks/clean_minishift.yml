@@ -29,9 +29,6 @@
   when: instance_status.stdout | regex_search('Does Not Exist') or __ms.action_to_trigger == 'clean'
   delegate_to: 127.0.0.1
 
-- name: clean_minishift | Stop Minishift profile '{{ __ms.start_options.profile }}' is not 'Does Not Exist'
-  include: stop.yml
-
 - name: clean_minishift | Remove Kubernetes cache for '{{ __ms.start_options.profile }} / {{ instance_ip_address }}' and port '8443'
   file:
     path: "~/.kube/{{ instance_ip_address }}_8443"

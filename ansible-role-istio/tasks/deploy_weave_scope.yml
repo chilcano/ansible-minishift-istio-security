@@ -1,0 +1,36 @@
+- name: deploy_weave_scope | Login with '{{ __i.openshift.admin_usr }}' in '{{ __i.minishift.profile }} / {{ instance_ip_address.stdout }}' port '8443'
+  command: "{{ my_oc }} login -u {{ __i.openshift.admin_usr }} --server https://{{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
+
+- name: deploy_weave_scope | Check if exists namespace/project 'weave-scope'
+  command: "{{ my_oc }} get projects"
+  register: openshift_projects
+
+- name: deploy_weave_scope | Defining the Weave Scope namespace/project regex
+  set_fact:
+    regex_weave_scope_prj: "weave-scope(.+)Active"
+
+- name: deploy_weave_scope | Create new namespace/project 'weave-scope'
+  command: "{{ my_oc }} new-project weave-scope"
+  when: not openshift_projects.stdout | regex_search(regex_weave_scope_prj)
+
+- name: deploy_weave_scope | Switch to namespace/project 'weave-scope'
+  command: "{{ my_oc }} project weave-scope"
+  when: openshift_projects.stdout | regex_search(regex_weave_scope_prj)
+
+- name: deploy_weave_scope | Preparing namespace/project 'weave-scope'
+  command: "{{ item }}"
+  with_items:
+    - "{{ my_oc }} adm policy add-cluster-role-to-user cluster-admin -z weave-scope"
+    - "{{ my_oc }} adm policy add-scc-to-user privileged -z weave-scope"
+    - "{{ my_oc }} adm policy add-scc-to-user anyuid -z default"
+
+- name: deploy_weave_scope | Install Weave Scope
+  command: "{{ item }}"
+  with_items:
+    - "{{ my_oc }} apply --namespace weave-scope -f https://cloud.weave.works/k8s/scope.yaml"
+
+- name: deploy_weave_scope | Perform 'port-forward' by using the next command
+  debug:
+    msg:
+      - "CMD: oc port-forward -n weave-scope \"$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')\" 4040 "
+      - "URL: http://127.0.0.1:4040 "

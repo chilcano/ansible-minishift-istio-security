@@ -23,9 +23,6 @@ minishift_defaults:
   openshift:
     admin_usr: "system:admin"
     admin_pwd: anypassword
-    route_docker_registry:
-      name: registry-access       # you can change it, it's an identifier
-      svc: docker-registry        # don't change it
   repo:
     name: minishift/minishift
     github_url: https://api.github.com/repos

@@ -1,58 +1,43 @@
-### config_pre
+###### config_pre
 
-- name: config_pre | Set admin permissions to Istio user
-  command: "oc adm policy add-cluster-role-to-user cluster-admin {{ __i.openshift.istio_usr }}"
+- name: config_pre | Set 'cluster-admin' permissions to Istio user
+  command: "{{ my_oc }} adm policy add-cluster-role-to-user cluster-admin {{ __i.openshift.istio_usr }}"
 
 - name: config_pre | Login with Istio user in '{{ __i.minishift.profile }} / {{ instance_ip_address.stdout }}' port '8443'
-  command: "oc login -u {{ __i.openshift.istio_usr }} -p {{ __i.openshift.istio_pwd }} --server https://{{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
+  command: "{{ my_oc }} login -u {{ __i.openshift.istio_usr }} -p {{ __i.openshift.istio_pwd }} --server https://{{ instance_ip_address.stdout }}:8443 --insecure-skip-tls-verify"
 
-- name: config_pre | Check if exists project "{{ __i.minishift.project }}"
-  command: "oc get projects"
-  register: minishift_projects
+- name: config_pre | Check if exists project "{{ __i.openshift.project }}"
+  command: "{{ my_oc }} get projects"
+  register: openshift_projects
 
-- name: config_pre | Defining the Istio project regex
+- name: config_pre | Defining the Istio namespace/project regex
   set_fact:
-    regex_istio_prj: "{{ __i.minishift.project }}(.+)Active"
+    regex_istio_prj: "{{ __i.openshift.project }}(.+)Active"
+    regex_istio_sample_prj: "istio-samples(.+)Active"
+    regex_istio_bookinfo_prj: "bookinfo(.+)Active"
 
-- name: config_pre | Create new project "{{ __i.minishift.project }}"
-  command: "oc new-project {{ __i.minishift.project }}"
-  when: not minishift_projects.stdout | regex_search(regex_istio_prj)
+- name: config_pre | Create new namespace/project '{{ __i.openshift.project }}'
+  command: "{{ my_oc }} new-project {{ __i.openshift.project }}"
+  when: not openshift_projects.stdout | regex_search(regex_istio_prj)
 
-- name: config_pre | Switch to project "{{ __i.minishift.project }}"
-  command: "oc project {{ __i.minishift.project }}"
-  when: minishift_projects.stdout | regex_search(regex_istio_prj)
+- name: config_pre | Switch to namespace/project '{{ __i.openshift.project }}'
+  command: "{{ my_oc }} project {{ __i.openshift.project }}"
+  when: openshift_projects.stdout | regex_search(regex_istio_prj)
 
-- name: config_pre | Preparing project "{{ __i.minishift.project }}"
+- name: config_pre | Preparing namespace/project '{{ __i.openshift.project }}'
   command: "{{ item }}"
   with_items:
-    - "oc adm policy add-scc-to-user anyuid -z {{ __i.minishift.project }}"
-    - "oc adm policy add-scc-to-user privileged -z {{ __i.minishift.project }}"
-    - "oc patch scc/privileged --patch '{\"allowedCapabilities\":[\"NET_ADMIN\"]}'"
+    - "{{ my_oc }} adm policy add-scc-to-user anyuid -z istio-ingress-service-account -n {{ __i.openshift.project }}"
+    - "{{ my_oc }} adm policy add-scc-to-user anyuid -z istio-egress-service-account -n {{ __i.openshift.project }}"
 
-- name: config_pre | Set admin permissions to manager, ingress and project/namespace
-  command: "oc adm policy add-cluster-role-to-user cluster-admin -z {{ item }}"
-  with_items:
-    - istio-manager-service-account
-    - istio-ingress-service-account
-    - "{{ __i.minishift.project }}"
-
-- name: config_pre | Set add-scc-to-user to ingress
+- name: config_pre | Prometheus and grafana run as root and they use 'default' system account
   command: "{{ item }}"
   with_items:
-    - "oc adm policy add-scc-to-user anyuid -z istio-ingress-service-account"
-    - "oc adm policy add-scc-to-user privileged -z istio-ingress-service-account"
+    - "{{ my_oc }} adm policy add-scc-to-user anyuid -z default -n {{ __i.openshift.project }}"
 
-- name: config_pre | Set add-scc-to-user to manager
-  command: "{{ item }}"
-  with_items:
-    - "oc adm policy add-scc-to-user anyuid -z istio-manager-service-account"
-    - "oc adm policy add-scc-to-user privileged -z istio-manager-service-account"
+###### deploy_istio
 
-
-
-### deploy
-
-- name: deploy | Copy 'istioctl' to the 'bin' directory
+- name: deploy_istio | Copy 'istioctl' to the 'bin' directory
   copy:
     src: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}/istio-{{ __i.repo.release_tag_name }}/bin/istioctl"
     dest: "{{ __i.dir.local_bin }}/istioctl"
@@ -60,27 +45,85 @@
     mode: 0775
     force: yes
   become: yes
-  #become_user: root
   when: __i.action.deploy.istioctl
 
-- name: deploy | Install Istio core
-  command: "oc apply -f istio-{{ __i.repo.release_tag_name }}/install/kubernetes/istio.yaml"
+- name: deploy_istio | Install Istio core
+  command: "{{ item }}"
+  with_items:
+    #- "{{ my_oc }} apply -f istio-{{ __i.repo.release_tag_name }}/install/kubernetes/istio.yaml"       ## without mutual TLS authentication between sidecars
+    - "{{ my_oc }} apply -f istio-{{ __i.repo.release_tag_name }}/install/kubernetes/istio-auth.yaml"   ## with mutual TLS authentication between sidecars
+    - "{{ my_oc }} expose svc istio-ingress"
   args:
     chdir: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
   when: __i.action.deploy.core
 
-- name: deploy | Install Istio addons
-  command: "oc apply -f {{ item }}"
+- name: deploy_istio_addons | Install Istio addons
+  command: "{{ item }}"
   with_items:
-    - "istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/prometheus.yaml"
-    - "istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/grafana.yaml"
-    - "istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/servicegraph.yaml"
+    - "{{ my_oc }} apply -f istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/zipkin.yaml"         ## zipkin for tracing
+    - "{{ my_oc }} apply -f istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/prometheus.yaml"     ## prometheus for metrics
+    - "{{ my_oc }} apply -f istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/grafana.yaml"        ## grafana for visualizing metrics generated for prometheus
+    - "{{ my_oc }} apply -f istio-{{ __i.repo.release_tag_name }}/install/kubernetes/addons/servicegraph.yaml"   ## visualize microservices call map
+    - "{{ my_oc }} expose svc zipkin"
+    - "{{ my_oc }} expose svc prometheus"
+    - "{{ my_oc }} expose svc grafana"
+    - "{{ my_oc }} expose svc servicegraph"
   args:
     chdir: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
   when: __i.action.deploy.addons
 
-- name: deploy | Install Istio Sample Apps
-  include: deploy_sample_apps.yml
-  when: __i.action.deploy.sample_apps
+###### deploy_bookinfo and apply Istio
 
-## get istioctl, copy it to bin and update PATH
+- name: deploy_bookinfo | Create new namespace/project 'bookinfo'
+  command: "{{ my_oc }} new-project bookinfo"
+  when: not openshift_projects.stdout | regex_search(regex_istio_bookinfo_prj)
+
+- name: deploy_bookinfo | Switch to namespace/project 'bookinfo'
+  command: "{{ my_oc }} project bookinfo"
+  when: openshift_projects.stdout | regex_search(regex_istio_bookinfo_prj)
+
+- name: deploy_bookinfo | Set privileged scc to 'default' for 'bookinfo'
+  command: "{{ item }}"
+  with_items:
+    - "{{ my_oc }} adm policy add-scc-to-user privileged -z default -n bookinfo"
+
+- name: deploy_bookinfo | Set fact '_istio_repo_'
+  set_fact:
+     _istio_repo_: "{{ __i.dir.local_repo }}/{{ istio_asset_name_without_ext }}"
+
+- name: deploy_bookinfo | Deploy BookInfo App with 'istioctl kube-inject' - injects/adds Envoy Sidecar proxies to each of the Kubernetes Deployment YAML
+  shell: "{{ item }}"
+  with_items:
+    #- "{{ my_oc }} apply -f <( istioctl kube-inject -f istio-{{ __i.repo.release_tag_name }}/samples/apps/bookinfo/bookinfo.yaml )"  ## istio < 0.2.7
+    - "{{ my_oc }} apply -f <( istioctl kube-inject -f istio-{{ __i.repo.release_tag_name }}/samples/bookinfo/kube/bookinfo.yaml )"   ## istio >= 0.2.7
+  args:
+    executable: "/bin/bash"
+    chdir: "{{ _istio_repo_ }}"
+
+###### config_post
+
+- name: config_post | Updating '/etc/hosts'
+  lineinfile:
+    dest: /etc/hosts
+    line: '{{ item }}'
+  with_items:
+    - "{{ instance_ip_address.stdout }}  zipkin-istio-system.{{ instance_ip_address.stdout }}.nip.io"
+    - "{{ instance_ip_address.stdout }}  grafana-istio-system.{{ instance_ip_address.stdout }}.nip.io"
+    - "{{ instance_ip_address.stdout }}  servicegraph-istio-system.{{ instance_ip_address.stdout }}.nip.io"
+    - "{{ instance_ip_address.stdout }}  istio-ingress-istio-system.{{ instance_ip_address.stdout }}.nip.io"
+  become: yes
+
+- name: Installation Istio and components completed.
+  debug:
+    msg:
+      - "Openshift Console:"
+      - "  https://{{ __i.minishift.profile }}:8443/console  "
+      - "  Important: before opening Addons URLS, to do login into Openshift Console"
+      - "Weave Scope:"
+      - "  CMD: oc port-forward -n weave-scope \"$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')\" 4040  "
+      - "  URL: http://127.0.0.1:4040  "
+      - "Istio Addons URLs:"
+      - "  http://zipkin-istio-system.{{ instance_ip_address.stdout }}.nip.io/zipkin/  "
+      - "  http://grafana-istio-system.{{ instance_ip_address.stdout }}.nip.io/dashboard/db/istio-dashboard  "
+      - "  http://servicegraph-istio-system.{{ instance_ip_address.stdout }}.nip.io/dotviz  "
+      - "  http://istio-ingress-istio-system.{{ instance_ip_address.stdout }}.nip.io/productpage  "

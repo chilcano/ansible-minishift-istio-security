@@ -1,7 +1,3 @@
-- name: clean | Remove Docker Registry's route
-  include: clean_route.yml
-  when:  instance_status.stdout | search('Running') and instance_ip_address is defined and ( not __ms.action.clean.installation )
-
 - name: clean | Remove current Minishift instance
   include: clean_minishift.yml
   when: __ms.action.clean.installation and minishift_cli.stat.exists

@@ -59,36 +59,29 @@
           #release_tag_name: "v1.6.0"
 
 - name: Install Istio demo.
-  hosts: Pisc0__
+  hosts: Pisc0
   connection: local
   gather_facts: yes
   vars:
-    istio_ms_hostname_and_profile: openshift1
+    istio_ms_hostname_and_profile: openshift2
 
   roles:
     - role: ansible-role-istio
       istio:
         action_to_trigger: deploy  # [ deploy | fresh_install | clean ]
         action:
-          config_pre: true
           deploy:
-            #istioctl: true
-            #core: true
+            istioctl: true    #
+            core: true        #
             addons: true      # prometheus, graphana, zipkin, servicegraph
             sample_apps: true # bookinfo
-          clean:
-            restore_config_pre: true
-            #istioctl: true
-            #core: true
-            addons: true
-            sample_apps: true
-        #minishift:
-          #profile: "{{ istio_ms_hostname_and_profile }}"
-        #openshift:
-        kubernetes:
-          version: 3.7
+          clean: true
+        minishift:
+          profile: "{{ istio_ms_hostname_and_profile }}"
+        openshift:
+          project: istio-system    # default
+          #version: 3.7
           hostname: "{{ istio_ms_hostname_and_profile }}"
-          k8s_cli: oc # kubectl
           admin_usr: "system:admin"
           admin_pwd: anypassword
           istio_usr: developer
