@@ -56,9 +56,42 @@ $ ansible-playbook -i inventory --ask-become-pass minishift-istio-sec-01.yml
 
 ## Screenshots
 
-1. api-mesh-security-1-openshift.png
+1. Openshift, BookInfo App, Istio and Weave Scope.
 
 ![Openshift, BookInfo App, Istio and Weave Scope](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-1-openshift.png "Openshift, BookInfo App, Istio and Weave Scope")
+
+2. Exploring Openshift with Weave Scope.
+
+![Exploring Openshift with Weave Scope](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-2-weave-scope.png "Exploring Openshift with Weave Scope")
+
+3. BookInfo App deployed on Openshift.
+
+![BookInfo App deployed on Openshift](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-3-istio-bookinfo-app.png "BookInfo App deployed on Openshift")
+
+4. Tracing with Zipkin.
+
+![Tracing with Zipkin](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-4-istio-zipkin.png "Tracing with Zipkin")
+
+
+5. Exploring metrics with Grafana.
+
+![Exploring metrics with Grafana](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-5-istio-grafana.png "Exploring metrics with Grafana")
+
+6. Viewing the flows with ServiceGraph.
+
+![Viewing the flows with ServiceGraph](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-6-istio-servicegraph.png "Viewing the flows with ServiceGraph")
+
+7. Selecting `istio-system` namespace.
+
+![Selecting istio-system namespace](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-7-weave-scope-istio-system.png "Selecting istio-system namespace")
+
+8. Selecting `istio-system` namespace.
+
+![Selecting bookinfo namespace](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-8-weave-scope-bookinfo.png "Selecting bookinfo namespace")
+
+9. Exploring in depth the API Mesh.
+
+![Exploring in depth the API Mesh](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-9-weave-scope-bookinfo-mesh.png "Exploring in depth the API Mesh")
 
 
 ## License
