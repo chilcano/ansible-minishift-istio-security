@@ -1,6 +1,11 @@
-# API Mesh & Security
+# Exploring API Mesh with Openshift and Istio
 
-
+1. Is API Mesh a kind of Distributed Application?
+2. Why Istio is required in a Containerized Platform?
+3. Why Deployment Container Patterns (sidecar, ambassador, adapter) are important?
+4. How we have to implement:
+  * Observability
+  * Security
 
 ## Observations
 
