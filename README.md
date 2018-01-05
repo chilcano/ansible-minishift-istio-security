@@ -1,11 +1,13 @@
 # Exploring API Mesh with Openshift and Istio
 
+We are going to try solving these questions by exploring a local Kubernetes, APIs, injecting sidecars and playing with Istio samples:
+
 1. Is API Mesh a kind of Distributed Application?
 2. Why Istio is required in a Containerized Platform?
 3. Why Deployment Container Patterns (sidecar, ambassador, adapter) are important?
-4. How we have to implement:
-  * Observability
-  * Security
+4. How we have to implement:  
+   * Observability
+   * Security  
 
 ## Observations
 
