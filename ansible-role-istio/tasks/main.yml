@@ -14,12 +14,12 @@
 
 - name: Clean previous Istio installation.
   include: clean.yml
-  when: __i.action_to_trigger == 'clean' or __i.action_to_trigger == 'fresh_install'
+  when: __i.action_to_trigger == 'clean'
 
 - name: Deploy Weave Scope
   include: deploy_weave_scope.yml
-  when: __i.action_to_trigger == 'deploy' or __i.action_to_trigger == 'fresh_install'
+  when: __i.action_to_trigger == 'deploy'
 
 - name: Deploy Istio, Addons and Bookinfo App.
   include: deploy.yml
-  when: __i.action_to_trigger == 'deploy' or __i.action_to_trigger == 'fresh_install'
+  when: __i.action_to_trigger == 'deploy'

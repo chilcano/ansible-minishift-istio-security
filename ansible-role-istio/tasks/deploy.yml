@@ -120,7 +120,7 @@
       - "  https://{{ __i.minishift.profile }}:8443/console  "
       - "  Important: before opening Addons URLS, to do login into Openshift Console"
       - "Weave Scope:"
-      - "  CMD: oc port-forward -n weave-scope \"$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')\" 4040  "
+      - "  CMD: oc port-forward -n weave-scope $(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}') 4040  "
       - "  URL: http://127.0.0.1:4040  "
       - "Istio Addons URLs:"
       - "  http://zipkin-istio-system.{{ instance_ip_address.stdout }}.nip.io/zipkin/  "

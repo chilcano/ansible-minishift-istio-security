@@ -32,5 +32,5 @@
 - name: deploy_weave_scope | Perform 'port-forward' by using the next command
   debug:
     msg:
-      - "CMD: oc port-forward -n weave-scope \"$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')\" 4040 "
+      - "CMD: oc port-forward -n weave-scope $(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}') 4040 "
       - "URL: http://127.0.0.1:4040 "

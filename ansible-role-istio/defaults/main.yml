@@ -17,7 +17,7 @@ istio_defaults:
     local_repo: /Users/Chilcano/Downloads/__kube_repo
     local_tmp: /Users/Chilcano/Downloads/__kube_tmp
     local_bin: /usr/local/bin
-  action_to_trigger: deploy  # [ deploy | fresh_install | clean ]
+  action_to_trigger: deploy  # [ deploy | clean ]
   action:
     deploy:
       istioctl: true

@@ -1,26 +1,12 @@
 ---
 # ansible-playbook -i inventory minishift-istio-sec-01.yml --ask-become-pass
 
-# oc port-forward -n weave-scope "$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')" 4040
-
-# eval $(minishift oc-env)
-
-# cd /Users/Chilcano/.minishift/cache/oc/v3.7.0/darwin/
-# ./oc login -u system:admin --server https://192.168.99.100:8443 --insecure-skip-tls-verify --config ~/.minishift/profiles/openshift0/machines/openshift0_kubeconfig
-# ./oc login -u system:admin --server https://192.168.99.101:8443 --insecure-skip-tls-verify --config ~/.minishift/profiles/openshift1/machines/openshift1_kubeconfig
-# ./oc login -u system:admin --server https://192.168.99.102:8443 --insecure-skip-tls-verify --config ~/.minishift/profiles/openshift2/machines/openshift2_kubeconfig
-# ./oc login -u system:admin --server https://192.168.99.103:8443 --insecure-skip-tls-verify --config ~/.minishift/profiles/openshift3/machines/openshift3_kubeconfig
-
-# oc login -u system:admin --server https://192.168.99.105:8443 --insecure-skip-tls-verify
-# oc login -u system:admin --server https://192.168.99.104:8443 --insecure-skip-tls-verify
-# oc login -u system:admin --server https://192.168.99.103:8443 --insecure-skip-tls-verify
-
 - name: Install Minishift demo.
   hosts: Pisc0
   connection: local
   gather_facts: yes
   vars:
-    ms_hostname_and_profile: openshift2
+    ms_hostname_and_profile: openshift0
 
   roles:
     - role: ansible-role-minishift
@@ -42,7 +28,7 @@
           #iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.2.0/minishift-b2d.iso
           #iso-url: https://github.com/minishift/minishift-centos-iso/releases/download/v1.2.0/minishift-centos7.iso
           profile: "{{ ms_hostname_and_profile }}"
-          #openshift-version: ""  # latest (https://hub.docker.com/r/openshift/origin/tags)
+          #openshift-version: ""        # latest (https://hub.docker.com/r/openshift/origin/tags)
           openshift-version: "v3.7.0"
           #openshift-version: "v3.6.0"
           #openshift-version: "v1.5.1"  # v3.5.1
@@ -63,16 +49,16 @@
   connection: local
   gather_facts: yes
   vars:
-    istio_ms_hostname_and_profile: openshift2
+    istio_ms_hostname_and_profile: openshift0
 
   roles:
     - role: ansible-role-istio
       istio:
-        action_to_trigger: deploy  # [ deploy | fresh_install | clean ]
+        action_to_trigger: deploy  # [ deploy | clean ]
         action:
           deploy:
-            istioctl: true    #
-            core: true        #
+            istioctl: true    # istioctl
+            core: true        # core components
             addons: true      # prometheus, graphana, zipkin, servicegraph
             sample_apps: true # bookinfo
           clean: true
@@ -80,7 +66,6 @@
           profile: "{{ istio_ms_hostname_and_profile }}"
         openshift:
           project: istio-system    # default
-          #version: 3.7
           hostname: "{{ istio_ms_hostname_and_profile }}"
           admin_usr: "system:admin"
           admin_pwd: anypassword
