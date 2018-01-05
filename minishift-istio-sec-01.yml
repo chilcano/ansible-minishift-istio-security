@@ -1,6 +1,4 @@
 ---
-# ansible-playbook -i inventory minishift-istio-sec-01.yml --ask-become-pass
-
 - name: Install Minishift demo.
   hosts: Pisc0
   connection: local
