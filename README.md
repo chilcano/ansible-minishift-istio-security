@@ -31,18 +31,29 @@ Tested with:
 
 Install the roles:
 ```
-$ ansible-galaxy install chilcano.minishift
-$ ansible-galaxy install chilcano.istio
+$ sudo ansible-galaxy install chilcano.minishift
+$ sudo ansible-galaxy install chilcano.istio
 ```
 
-Create an `inventory` file
+Download the playbook and create the `inventory`:
 ```
+$ git clone https://github.com/chilcano/ansible-minishift-istio-security
+$ cd ansible-minishift-istio-security
 $ echo $(hostname) > ./inventory
 ```
 
-Copy the `minishift-istio-sec-01.yml` playbook from this Git repo to the current working directory:
+Update the `minishift-istio-sec-01.yml` playbook accordingly, for example update:
+
+```yaml
+  iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.2.0/minishift-b2d.iso
+  profile: openshift0
+  openshift-version: "v3.7.0"
+  ...
+  release_tag_name: "" # latest
 ```
-$ cat minishift-istio-sec-01.yml
+
+```
+$ nano minishift-istio-sec-01.yml
 ```
 
 ```yaml
@@ -118,20 +129,12 @@ $ cat minishift-istio-sec-01.yml
           istio_usr: developer
           istio_pwd: anypassword
         repo:
-          #release_tag_name: "0.2.12"
-          #release_tag_name: "0.2.10"
-          #release_tag_name: "0.2.9"
+          #release_tag_name: ""   # latest
           release_tag_name: "0.2.7"
           #release_tag_name: "0.2.6"
-          #release_tag_name: "0.2.4"
-          #release_tag_name: "0.2.2"
-          #release_tag_name: "0.2.1"
-          #release_tag_name: "0.2.0"
-          #release_tag_name: "0.1.6"
-          #release_tag_name: "0.1.5"
 ```
 
-Run the playbook:
+Now, run the playbook:
 ```
 $ ansible-playbook -i inventory --ask-become-pass minishift-istio-sec-01.yml
 ```
