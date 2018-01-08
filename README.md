@@ -190,7 +190,3 @@ $ ansible-playbook -i inventory --ask-become-pass minishift-istio-sec-01.yml
 ## License
 
 MIT / BSD
-
-## Author Information
-
-This role was created in 2017 by [Roger Carhuatocto](https://www.linkedin.com/in/rcarhuatocto), author of [HolisticSecurity.io Blog](https://holisticsecurity.io).
