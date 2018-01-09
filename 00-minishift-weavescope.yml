@@ -1,0 +1,47 @@
+---
+- name: Install Minishift and Weave Scope demo.
+  hosts: Pisc0
+  connection: local
+  gather_facts: yes
+  vars:
+    hostname_and_profile: openshift0
+
+  roles:
+    #- role: ../ansible-role-minishift
+    - role: chilcano.minishift
+      minishift:
+        action_to_trigger: install # [ install | fresh_install | clean ]
+        action:
+          clean:
+            installation: true
+            local_repo: false
+            local_tmp: false
+            dependencies: false
+          install: true
+          start: true
+        post_copy_oc: false
+        start_options:
+          vm-driver: virtualbox
+          iso-url: file:///Users/Chilcano/Downloads/__kube_repo/minishift-b2d-iso/v1.2.0/minishift-b2d.iso
+          #iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.2.0/minishift-b2d.iso
+          profile: "{{ hostname_and_profile }}"
+          openshift-version: "v3.7.0"
+        openshift:
+          admin_usr: "system:admin"
+          admin_pwd: anypassword
+        repo:
+          name: minishift/minishift
+          release_tag_name: "" # latest
+
+  #- role: ../ansible-role-weave-scope
+    - role: chilcano.weave-scope
+      weave_scope:
+        minishift:
+          profile: "{{ hostname_and_profile }}"
+        openshift:
+          admin_usr: "system:admin"
+          admin_pwd: anypassword
+          hostname: "{{ hostname_and_profile }}"
+        #repo: https://cloud.weave.works/k8s/scope.yaml   ## default
+        repo: /Users/Chilcano/Downloads/__kube_repo/weave-scope/scope.yaml
+        action_to_trigger: deploy  # [ deploy | clean ]
