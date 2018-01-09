@@ -58,7 +58,7 @@ Update the playbooks accordingly, for example, update:
 ### 1. Openshift Cluster and Weave-Scope
 
 ```
-$ ansible-playbook -i inventory --ask-become-pass 01-minishift-weavescope.yml
+$ ansible-playbook -i inventory --ask-become-pass 00-minishift-weavescope.yml
 ```
 
 #### Explanation
@@ -70,7 +70,7 @@ $ ansible-playbook -i inventory --ask-become-pass 01-minishift-weavescope.yml
 ### 2. Openshift Cluster, Weave-Scope, Istio and BookInfo App
 
 ```
-$ ansible-playbook -i inventory --ask-become-pass 02-minishift-weavescope-istio.yml
+$ ansible-playbook -i inventory --ask-become-pass 01-minishift-weavescope-istio.yml
 ```
 
 #### Explanation
