@@ -172,7 +172,6 @@ $ ansible-playbook -i inventory 02b-remove-minishift.yml -e vm=openshift2 --ask-
 
 ![Tracing with Zipkin](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-4-istio-zipkin.png "Tracing with Zipkin")
 
-
 5. Exploring metrics with Grafana.
 
 ![Exploring metrics with Grafana](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-5-istio-grafana.png "Exploring metrics with Grafana")
@@ -185,7 +184,7 @@ $ ansible-playbook -i inventory 02b-remove-minishift.yml -e vm=openshift2 --ask-
 
 ![Selecting istio-system namespace](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-7-weave-scope-istio-system.png "Selecting istio-system namespace")
 
-8. Selecting `istio-system` namespace.
+8. Selecting `bookinfo` namespace.
 
 ![Selecting bookinfo namespace](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-8-weave-scope-bookinfo.png "Selecting bookinfo namespace")
 
