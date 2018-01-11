@@ -4,7 +4,7 @@
   connection: local
   gather_facts: yes
   vars:
-    hostname_and_profile: openshift1
+    vm: openshift1
 
   roles:
     - role: chilcano.minishift
@@ -23,7 +23,7 @@
           vm-driver: virtualbox
           iso-url: file:///Users/Chilcano/Downloads/__kube_repo/minishift-b2d-iso/v1.2.0/minishift-b2d.iso
           #iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.2.0/minishift-b2d.iso
-          profile: "{{ hostname_and_profile }}"
+          profile: "{{ vm }}"
           openshift-version: "v3.7.0"
         openshift:
           admin_usr: "system:admin"
@@ -35,11 +35,11 @@
     - role: chilcano.weave-scope
       weave_scope:
         minishift:
-          profile: "{{ hostname_and_profile }}"
+          profile: "{{ vm }}"
         openshift:
           admin_usr: "system:admin"
           admin_pwd: anypassword
-          hostname: "{{ hostname_and_profile }}"
+          hostname: "{{ vm }}"
         #repo: https://cloud.weave.works/k8s/scope.yaml   ## default
         repo: /Users/Chilcano/Downloads/__kube_repo/weave-scope/scope.yaml
         action_to_trigger: deploy  # [ deploy | clean ]
@@ -53,12 +53,11 @@
             core: true        # core components
             addons: true      # prometheus, graphana, zipkin, servicegraph
             sample_apps: true # bookinfo
-          clean: true
         minishift:
-          profile: "{{ hostname_and_profile }}"
+          profile: "{{ vm }}"
         openshift:
           project: istio-system
-          hostname: "{{ hostname_and_profile }}"
+          hostname: "{{ vm }}"
           admin_usr: "system:admin"
           admin_pwd: anypassword
           istio_usr: developer

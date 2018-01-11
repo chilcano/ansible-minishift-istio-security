@@ -1,0 +1,30 @@
+---
+- name: Install Istio and BookInfo Sample App.
+  hosts: Pisc0
+  connection: local
+  gather_facts: yes
+  vars:
+    vm: openshift0
+
+  roles:
+    - role: chilcano.istio
+      istio:
+        action_to_trigger: deploy  # [ deploy | clean ]
+        action:
+          deploy:
+            istioctl: true    # istioctl
+            core: true        # core components
+            addons: true      # prometheus, graphana, zipkin, servicegraph
+            sample_apps: true # bookinfo
+        minishift:
+          profile: "{{ vm }}"
+        openshift:
+          project: istio-system
+          hostname: "{{ vm }}"
+          admin_usr: "system:admin"
+          admin_pwd: anypassword
+          istio_usr: developer
+          istio_pwd: anypassword
+        repo:
+          name: istio/istio
+          release_tag_name: "0.2.7"

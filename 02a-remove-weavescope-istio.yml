@@ -1,0 +1,27 @@
+---
+- name: Remove Weave Scope and Istio.
+  hosts: Pisc0
+  connection: local
+  gather_facts: yes
+  vars:
+    vm: openshift1
+
+  roles:
+    - role: chilcano.weave-scope
+      weave_scope:
+        action_to_trigger: clean  # [ deploy | clean ]
+        minishift:
+          profile: "{{ vm }}"
+        openshift:
+          hostname: "{{ vm }}"
+
+    - role: chilcano.istio
+      istio:
+        action_to_trigger: clean  # [ deploy | clean ]
+        minishift:
+          profile: "{{ vm }}"
+        openshift:
+          hostname: "{{ vm }}"
+        repo:
+          name: istio/istio
+          release_tag_name: "0.2.7"

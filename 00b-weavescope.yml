@@ -1,0 +1,20 @@
+---
+- name: Install Weave Scope.
+  hosts: Pisc0
+  connection: local
+  gather_facts: yes
+  vars:
+    vm: openshift0
+
+  roles:
+    - role: chilcano.weave-scope
+      weave_scope:
+        minishift:
+          profile: "{{ vm }}"
+        openshift:
+          admin_usr: "system:admin"
+          admin_pwd: anypassword
+          hostname: "{{ vm }}"
+        #repo: https://cloud.weave.works/k8s/scope.yaml   ## default
+        repo: /Users/Chilcano/Downloads/__kube_repo/weave-scope/scope.yaml
+        action_to_trigger: deploy  # [ deploy | clean ]
