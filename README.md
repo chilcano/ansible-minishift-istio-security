@@ -154,7 +154,7 @@ $ ansible-playbook -i inventory 02a-remove-weavescope-istio.yml -e vm=openshift2
 $ ansible-playbook -i inventory 02b-remove-minishift.yml -e vm=openshift2 --ask-become-pass
 ```
 
-#### Screenshots
+## Screenshots
 
 1. OpenShift, BookInfo App, Istio and Weave Scope.
 
@@ -192,7 +192,3 @@ $ ansible-playbook -i inventory 02b-remove-minishift.yml -e vm=openshift2 --ask-
 9. Exploring in depth the API Mesh.
 
 ![Exploring in depth the API Mesh](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-9-weave-scope-bookinfo-mesh.png "Exploring in depth the API Mesh")
-
-## License
-
-MIT / BSD
