@@ -1,8 +1,8 @@
-# Exploring API Mesh with OpenShift, Weave Scope and Istio
+# Exploring Service Mesh with OpenShift, Weave Scope and Istio
 
 We are going to try solving below questions by exploring a local Kubernetes, APIs, injecting sidecars and playing with Istio samples:
 
-1. Is API Mesh a kind of Distributed Application?
+1. Is Service Mesh a kind of Distributed Application?
 2. Why Istio is required in a Containerized Platform?
 3. Why Deployment Container Patterns (sidecar, ambassador, adapter) are important?
 4. How we have to implement:  
@@ -28,7 +28,7 @@ Tested with:
 - Istio Ansible Role: https://galaxy.ansible.com/chilcano/istio
 - `sudo` access in your host is required for installing packages.
 
-## 1. Getting step-by-step a full API Mesh to test locally with OpenShift, Weave Scope and Istio.
+## 1. Getting step-by-step a full Service Mesh to test locally with OpenShift, Weave Scope and Istio.
 
 Install the roles:
 ```
@@ -79,12 +79,44 @@ $ ansible-playbook -i inventory 00b-weavescope.yml -e vm=openshift1 --ask-become
 2. The Weave Scope Ansible Role will download and apply the Kubernetes Deployment YAML file to deploy Weave Scope as an app in the OpenShift.
 3. The installation of Weave Scope is not mandatory. It's a good tool to monitor, manage and visualize the OpenShift Cluster, Pods and Containers.
 
+
+In order to get access to Weave Scope from browser, we should forward the Weave Scope's port to the Host's port.
+Considering the Weave Scope App listens, by default, on the port `4040`, then to forward to host's port on `4040` to use next command:
+```
+$ oc port-forward -n weave-scope "$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')" 4040
+```
+Or
+```
+$ oc port-forward -n weave-scope "$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')" 4040:4040
+Forwarding from 127.0.0.1:4040 -> 4040
+Forwarding from [::1]:4040 -> 4040
+Handling connection for 4040
+Handling connection for 4040
+Handling connection for 4040
+Handling connection for 4040
+...
+```
+
+To forward to host's port on `4041` to use the next command:
+```
+$ oc port-forward -n weave-scope "$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')" 4041:4040
+Forwarding from 127.0.0.1:4041 -> 4040
+Forwarding from [::1]:4041 -> 4040
+Handling connection for 4041
+Handling connection for 4041
+Handling connection for 4041
+Handling connection for 4041
+Handling connection for 4041
+...
+```
+
+Once done, open your browser with this URL and you could visualize all Pods, Containers, Controllers, etc. of your OpenShift Cluster.
+
 ### Step 3: Deploying Istio and BookInfo App.
 
 ```
 $ ansible-playbook -i inventory 00c-istio.yml -e vm=openshift1 --ask-become-pass
 ```
-
 
 #### Explanation
 
@@ -133,7 +165,7 @@ reviews-v2-3096629009-d7r76       0/2       PodInitializing   0          7m
 reviews-v3-1994447391-dd7vs       0/2       PodInitializing   0          7m
 ```
 
-4. If all Pods have `Running` as status, then you can use the BookInfo App with Istio (API Mesh). Just open you browser with this URL `http://istio-ingress-istio-system.192.168.99.101.nip.io/productpage`. Where the IP address for `openshift1` is `192.168.99.101`, change it if required.
+4. If all Pods have `Running` as status, then you can use the BookInfo App with Istio (Service Mesh). Just open you browser with this URL `http://istio-ingress-istio-system.192.168.99.101.nip.io/productpage`. Where the IP address for `openshift1` is `192.168.99.101`, change it if required.
 
 ## 2. Other Sample Ansible Playbooks to explore.
 
@@ -188,6 +220,6 @@ $ ansible-playbook -i inventory 02b-remove-minishift.yml -e vm=openshift2 --ask-
 
 ![Selecting bookinfo namespace](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-8-weave-scope-bookinfo.png "Selecting bookinfo namespace")
 
-9. Exploring in depth the API Mesh.
+9. Exploring in depth the Service Mesh.
 
-![Exploring in depth the API Mesh](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-9-weave-scope-bookinfo-mesh.png "Exploring in depth the API Mesh")
+![Exploring in depth the Service Mesh](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-9-weave-scope-bookinfo-mesh.png "Exploring in depth the Service Mesh")
