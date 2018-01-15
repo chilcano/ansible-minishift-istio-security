@@ -10,6 +10,11 @@ Basically we are going to learn and understand what is Service Mesh by exploring
    * Observability
    * Security  
 
+
+
+![Exploring Service Mesh - OpenShift with Weave Scope and Istio](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-2-weave-scope.png "Exploring Service Mesh - OpenShift with Weave Scope and Istio")
+
+
 ## Observations
 
 Tested with:
