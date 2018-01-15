@@ -5,11 +5,12 @@
   gather_facts: yes
   vars:
     vm: openshift0
+    do: install # [ install | fresh_install | clean ]
 
   roles:
     - role: chilcano.minishift
       minishift:
-        action_to_trigger: install # [ install | fresh_install | clean ]
+        action_to_trigger: "{{ do }}"
         action:
           clean:
             installation: true

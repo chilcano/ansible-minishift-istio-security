@@ -9,6 +9,7 @@
   roles:
     - role: chilcano.weave-scope
       weave_scope:
+        action_to_trigger: deploy  # [ deploy | clean ]
         minishift:
           profile: "{{ vm }}"
         openshift:
@@ -17,4 +18,4 @@
           hostname: "{{ vm }}"
         #repo: https://cloud.weave.works/k8s/scope.yaml   ## default
         repo: /Users/Chilcano/Downloads/__kube_repo/weave-scope/scope.yaml
-        action_to_trigger: deploy  # [ deploy | clean ]
+        

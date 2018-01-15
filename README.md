@@ -1,6 +1,6 @@
 # Exploring Service Mesh with OpenShift, Weave Scope and Istio
 
-We are going to try solving below questions by exploring a local Kubernetes, APIs, injecting sidecars and playing with Istio samples:
+Basically we are going to learn and understand what is Service Mesh by exploring a local Kubernetes, APIs, injecting sidecars and playing with Istio samples; in other words, we are going to try solving below questions:
 
 1. Is Service Mesh a kind of Distributed Application?
 2. Why Istio is required in a Containerized Platform?
@@ -23,21 +23,22 @@ Tested with:
 
 ## Prerequisites
 
-- Minishift Ansible Role: https://galaxy.ansible.com/chilcano/minishift
-- Weave Scope Ansible Role: https://galaxy.ansible.com/chilcano/weave-scope
-- Istio Ansible Role: https://galaxy.ansible.com/chilcano/istio
-- `sudo` access in your host is required for installing packages.
+- Chilcano's Ansible Roles:
+   * Minishift (https://galaxy.ansible.com/chilcano/minishift)
+   * Weave Scope (https://galaxy.ansible.com/chilcano/weave-scope)
+   * Istio (https://galaxy.ansible.com/chilcano/istio)
+- `sudo` access in your Host for installing packages.
 
 ## 1. Getting step-by-step a full Service Mesh to test locally with OpenShift, Weave Scope and Istio.
 
-Install the roles:
+Install the Chilcano's Ansible Roles:
 ```
 $ sudo ansible-galaxy install chilcano.minishift
 $ sudo ansible-galaxy install chilcano.weave-scope
 $ sudo ansible-galaxy install chilcano.istio
 ```
 
-Download the playbook and create the `inventory`:
+Download from Github the sample playbooks and create the `inventory`:
 ```
 $ git clone https://github.com/chilcano/ansible-minishift-istio-security
 $ cd ansible-minishift-istio-security
@@ -167,6 +168,16 @@ reviews-v3-1994447391-dd7vs       0/2       PodInitializing   0          7m
 
 4. If all Pods have `Running` as status, then you can use the BookInfo App with Istio (Service Mesh). Just open you browser with this URL `http://istio-ingress-istio-system.192.168.99.101.nip.io/productpage`. Where the IP address for `openshift1` is `192.168.99.101`, change it if required.
 
+
+### Step 4: Re-starting the OpenShift VM.
+
+Sometimes the OpenShift's VM can not be running because you have rebooted your computer or have stoppet the VM from VirtualBox, oVirt, VMWare, etc.
+In that case, in order to re-install everything you just need trigger the `$ minishift start` command, and to do easier you can use the previous playbook used to create the OpenShift's VM with the `action_to_trigger` param set to `install` or external param `do=install` from command line. Although, the default value for `action_to_trigger` is `install`, that is useful if you want to trigger other actions like `install`, `fresh_install` or `clean`.
+
+```
+$ ansible-playbook -i inventory 00a-minishift.yml -e vm=openshift1 -e do=install --ask-become-pass
+```
+
 ## 2. Other Sample Ansible Playbooks to explore.
 
 If you have cloned this repository `https://github.com/chilcano/ansible-minishift-istio-security` then you will see other playbooks:
@@ -223,3 +234,16 @@ $ ansible-playbook -i inventory 02b-remove-minishift.yml -e vm=openshift2 --ask-
 9. Exploring in depth the Service Mesh.
 
 ![Exploring in depth the Service Mesh](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-9-weave-scope-bookinfo-mesh.png "Exploring in depth the Service Mesh")
+
+## References about Service Mesh and Istio
+
+1. Catch up on the Istio and service mesh excitement from Kubecon 2017! (by Lin Sun)
+   * https://developer.ibm.com/dwblog/2017/istio-service-mesh-kubecon-news-announcements
+2. Istio Workshop (includes Istio installation for Google Cloud and AWS)
+   * https://github.com/retroryan/istio-workshop (by Ryan Knight)
+   * https://github.com/ZackButcher/istio-workshop (by Zack Butcher)
+   * https://github.com/ipedrazas/istioworkshop-cc (by Ivan Pedrazas)
+3. Deep Dive Envoy and Istio Workshop (by Christian Posta)
+   * http://blog.christianposta.com/microservices/deep-dive-envoy-and-istio-workshop/
+4. Istio Traffic Management – Diving Deeper (by Ricardo Lourenco)
+   * https://blog.openshift.com/istio-traffic-management-diving-deeper
