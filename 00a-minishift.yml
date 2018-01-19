@@ -24,6 +24,7 @@
           #iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.2.0/minishift-b2d.iso
           profile: "{{ vm }}"
           openshift-version: "v3.7.0"
+          cpus: 4
         openshift:
           admin_usr: "system:admin"
           admin_pwd: anypassword

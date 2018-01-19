@@ -10,18 +10,15 @@ Basically we are going to learn and understand what is Service Mesh by exploring
    * Observability
    * Security  
 
-
-
 ![Exploring Service Mesh - OpenShift with Weave Scope and Istio](https://github.com/chilcano/ansible-minishift-istio-security/blob/master/imgs/api-mesh-security-2-weave-scope.png "Exploring Service Mesh - OpenShift with Weave Scope and Istio")
-
 
 ## Observations
 
 Tested with:
 
 - Ansible 2.3+
-- minishift v1.11.0+4459917
-- kubernetes 3.7
+- Minishift v1.11.0+4459917
+- Kubernetes 3.7
 - istio 0.2.7
 - VirtualBox 5.1.30
 - macOS High Sierra, version 10.13.2 (17C88)
@@ -56,8 +53,9 @@ Update the playbooks accordingly, for example, update:
   iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.2.0/minishift-b2d.iso
   profile: openshift0
   openshift-version: "v3.7.0"
+  cpus: 4               # required to use ReplicationController
   ...
-  release_tag_name: "" # latest
+  release_tag_name: ""  # latest
   ...
 ```
 
@@ -89,11 +87,8 @@ $ ansible-playbook -i inventory 00b-weavescope.yml -e vm=openshift1 --ask-become
 In order to get access to Weave Scope from browser, we should forward the Weave Scope's port to the Host's port.
 Considering the Weave Scope App listens, by default, on the port `4040`, then to forward to host's port on `4040` to use next command:
 ```
-$ oc port-forward -n weave-scope "$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')" 4040
-```
-Or
-```
 $ oc port-forward -n weave-scope "$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')" 4040:4040
+
 Forwarding from 127.0.0.1:4040 -> 4040
 Forwarding from [::1]:4040 -> 4040
 Handling connection for 4040
@@ -103,9 +98,12 @@ Handling connection for 4040
 ...
 ```
 
-To forward to host's port on `4041` to use the next command:
+To forward to host's port on `4041`, send logs to log file and run it on background to use the next command:
 ```
-$ oc port-forward -n weave-scope "$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')" 4041:4040
+$ oc port-forward -n weave-scope "$(oc get -n weave-scope pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')" 4041:4040 > openshift-scope.log &
+[1] 3087
+
+$ tail -f openshift-scope.log
 Forwarding from 127.0.0.1:4041 -> 4040
 Forwarding from [::1]:4041 -> 4040
 Handling connection for 4041
@@ -114,6 +112,15 @@ Handling connection for 4041
 Handling connection for 4041
 Handling connection for 4041
 ...
+```
+
+To kill the `oc port-forward ...` command, to do this:
+```
+$ killall oc
+```
+Or
+```
+$ kill 3087
 ```
 
 Once done, open your browser with this URL and you could visualize all Pods, Containers, Controllers, etc. of your OpenShift Cluster.

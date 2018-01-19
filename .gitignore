@@ -6,3 +6,4 @@
 *.bcn
 *.man
 inventory
+**/kube
