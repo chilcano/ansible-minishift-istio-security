@@ -8,7 +8,8 @@
     do: install # [ install | fresh_install | clean ]
 
   roles:
-    - role: chilcano.minishift
+    #- role: chilcano.minishift
+    - role: ../ansible-role-minishift
       minishift:
         action_to_trigger: "{{ do }}"
         action:
@@ -17,6 +18,8 @@
             local_repo: false
             local_tmp: false
             dependencies: false
+          install: true
+          start: true
         post_copy_oc: false
         start_options:
           vm-driver: virtualbox
@@ -24,10 +27,12 @@
           #iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.2.0/minishift-b2d.iso
           profile: "{{ vm }}"
           openshift-version: "v3.7.0"
-          cpus: 4
+          cpus: 4       # Number of CPU cores to allocate to the Minishift VM. (default 2)
+          #memory: 4096  # Amount of RAM to allocate to the Minishift VM. Use the format <size><unit>, where unit = MB or GB. (default "2GB")
+          show-libmachine-logs: ""
         openshift:
           admin_usr: "system:admin"
           admin_pwd: anypassword
         repo:
           name: minishift/minishift
-          release_tag_name: "" # latest
+          release_tag_name: "v1.11.0"

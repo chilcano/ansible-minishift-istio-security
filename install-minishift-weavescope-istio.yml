@@ -1,5 +1,5 @@
 ---
-- name: Demo Minishift, Weave Scope and Istio.
+- name: Install Minishift, Weave Scope and Istio.
   hosts: Pisc0
   connection: local
   gather_facts: yes
@@ -7,7 +7,8 @@
     vm: openshift1
 
   roles:
-    - role: chilcano.minishift
+    #- role: chilcano.minishift
+    - role: ../ansible-role-minishift
       minishift:
         action_to_trigger: install # [ install | fresh_install | clean ]
         action:
@@ -25,7 +26,9 @@
           #iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.2.0/minishift-b2d.iso
           profile: "{{ vm }}"
           openshift-version: "v3.7.0"
-          cpus: 4
+          cpus: 4       # Number of CPU cores to allocate to the Minishift VM. (default 2)
+          #memory: 4096  # Amount of RAM to allocate to the Minishift VM. Use the format <size><unit>, where unit = MB or GB. (default "2GB")
+          show-libmachine-logs: ""
         openshift:
           admin_usr: "system:admin"
           admin_pwd: anypassword
@@ -33,19 +36,22 @@
           name: minishift/minishift
           release_tag_name: "v1.11.0"
 
-    - role: chilcano.weave-scope
+    #- role: chilcano.weave-scope
+    - role: ../ansible-role-weave-scope
       weave_scope:
+        action_to_trigger: deploy  # [ deploy | clean ]
         minishift:
           profile: "{{ vm }}"
         openshift:
           admin_usr: "system:admin"
           admin_pwd: anypassword
           hostname: "{{ vm }}"
-        #repo: https://cloud.weave.works/k8s/scope.yaml   ## default
-        repo: /Users/Chilcano/Downloads/__kube_repo/weave-scope/scope.yaml
-        action_to_trigger: deploy  # [ deploy | clean ]
+          project: weave   ## overwriting namespace (default is 'weave' in version > 1.7.0)
+        repo: https://cloud.weave.works/k8s/scope.yaml   ## latest for OpenShift
+        #repo: "{{ role_path }}/files/scope_1.7.1.yaml"
 
-    - role: chilcano.istio
+    #- role: chilcano.istio
+    - role: ../ansible-role-istio
       istio:
         action_to_trigger: deploy  # [ deploy | clean ]
         action:
@@ -65,4 +71,5 @@
           istio_pwd: anypassword
         repo:
           name: istio/istio
-          release_tag_name: "0.2.7"
+          release_tag_name: "0.5.0"
+          #release_tag_name: "0.2.7"

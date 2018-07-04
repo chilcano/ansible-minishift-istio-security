@@ -1,0 +1,42 @@
+---
+- name: Remove Weave Scope, Istio and Minishift VM.
+  hosts: Pisc0
+  connection: local
+  gather_facts: yes
+  vars:
+    vm: openshift2
+
+  roles:
+    - role: chilcano.weave-scope
+      weave_scope:
+        action_to_trigger: clean  # [ deploy | clean ]
+        minishift:
+          profile: "{{ vm }}"
+        openshift:
+          hostname: "{{ vm }}"
+
+    - role: chilcano.istio
+      istio:
+        action_to_trigger: clean  # [ deploy | clean ]
+        minishift:
+          profile: "{{ vm }}"
+        openshift:
+          hostname: "{{ vm }}"
+        repo:
+          name: istio/istio
+          release_tag_name: "0.2.7"
+
+    - role: chilcano.minishift
+      minishift:
+        action_to_trigger: clean # [ install | fresh_install | clean ]
+        action:
+          clean:
+            installation: true
+            local_repo: false
+            local_tmp: false
+            dependencies: false
+        start_options:
+          profile: "{{ vm }}"
+        openshift:
+          admin_usr: "system:admin"
+          admin_pwd: anypassword

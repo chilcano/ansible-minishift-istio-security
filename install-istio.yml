@@ -7,7 +7,8 @@
     vm: openshift0
 
   roles:
-    - role: chilcano.istio
+    #- role: chilcano.istio
+    - role: ../ansible-role-istio
       istio:
         action_to_trigger: deploy  # [ deploy | clean ]
         action:
@@ -16,6 +17,7 @@
             core: true        # core components
             addons: true      # prometheus, graphana, zipkin, servicegraph
             sample_apps: true # bookinfo
+            #sample_apps: false # bookinfo
         minishift:
           profile: "{{ vm }}"
         openshift:
@@ -27,4 +29,7 @@
           istio_pwd: anypassword
         repo:
           name: istio/istio
-          release_tag_name: "0.2.7"
+          #release_tag_name: "" # latest
+          #release_tag_name: "0.5.1"  ## error in prometheus
+          release_tag_name: "0.5.0"
+          #release_tag_name: "0.2.7"

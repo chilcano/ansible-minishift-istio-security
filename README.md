@@ -33,13 +33,6 @@ Tested with:
 
 ## 1. Getting step-by-step a full Service Mesh to test locally with OpenShift, Weave Scope and Istio.
 
-Install the Chilcano's Ansible Roles:
-```
-$ sudo ansible-galaxy install chilcano.minishift
-$ sudo ansible-galaxy install chilcano.weave-scope
-$ sudo ansible-galaxy install chilcano.istio
-```
-
 Download from Github the sample playbooks and create the `inventory`:
 ```
 $ git clone https://github.com/chilcano/ansible-minishift-istio-security
@@ -47,34 +40,34 @@ $ cd ansible-minishift-istio-security
 $ echo $(hostname) > ./inventory
 ```
 
-Update the playbooks accordingly, for example, update:
+Install the Chilcano's Ansible Roles:
+```
+$ sudo ansible-galaxy install -r requirements.yml
+```
+
+Where `requirements.yml` is:
 ```yaml
-  ...
-  iso-url: https://github.com/minishift/minishift-b2d-iso/releases/download/v1.2.0/minishift-b2d.iso
-  profile: openshift0
-  openshift-version: "v3.7.0"
-  cpus: 4               # required to use ReplicationController
-  ...
-  release_tag_name: ""  # latest
-  ...
+- src: chilcano.minishift
+- src: chilcano.istio
+- src: chilcano.weave-scope
 ```
 
 ### Step 1: Creating a minimalist OpenShift Cluster in a VM.
 
 ```
-$ ansible-playbook -i inventory 00a-minishift.yml -e vm=openshift1 --ask-become-pass
+$ ansible-playbook -i inventory install-minishift.yml -e vm=openshift1 --ask-become-pass
 ```
 
 #### Explanation
 
 1. The Minishift Ansible Role will download and install all components required to get an OpenShift Cluster running in a VM.
 2. The `-e vm=openshift1` means that `openshift1` is the name of the Minishift instance.
-3. The Ansible Playbook executed (`00a-minishift.yml`) and the Ansible Role used (`chilcano.minishift`) will login in the recently created OpenShift instance through the `oc` client. Once done, you can login to OpenShift Web Console by using `http://openshift1:8443`. It's very important to accept and trust all TLS/SSL Certificates.
+3. The Ansible Playbook executed (`install-minishift.yml`) and the Ansible Role used (`chilcano.minishift`) will login in the recently created OpenShift instance through the `oc` client. Once done, you can login to OpenShift Web Console by using `http://openshift1:8443`. It's very important to accept and trust all TLS/SSL Certificates.
 
 ### Step 2: Deploying Weave Scope in OpenShift.
 
 ```
-$ ansible-playbook -i inventory 00b-weavescope.yml -e vm=openshift1 --ask-become-pass
+$ ansible-playbook -i inventory install-weavescope.yml -e vm=openshift1 --ask-become-pass
 ```
 
 #### Explanation
@@ -128,7 +121,7 @@ Once done, open your browser with this URL and you could visualize all Pods, Con
 ### Step 3: Deploying Istio and BookInfo App.
 
 ```
-$ ansible-playbook -i inventory 00c-istio.yml -e vm=openshift1 --ask-become-pass
+$ ansible-playbook -i inventory install-istio.yml -e vm=openshift1 --ask-become-pass
 ```
 
 #### Explanation
@@ -187,7 +180,7 @@ Sometimes the OpenShift's VM can not be running because you have rebooted your c
 In that case, in order to re-install everything you just need trigger the `$ minishift start` command, and to do easier you can use the previous playbook used to create the OpenShift's VM with the `action_to_trigger` param set to `install` or external param `do=install` from command line. Although, the default value for `action_to_trigger` is `install`, that is useful if you want to trigger other actions like `install`, `fresh_install` or `clean`.
 
 ```
-$ ansible-playbook -i inventory 00a-minishift.yml -e vm=openshift1 -e do=install --ask-become-pass
+$ ansible-playbook -i inventory install-minishift.yml -e vm=openshift1 -e do=install --ask-become-pass
 ```
 
 ## 2. Other Sample Ansible Playbooks to explore.
@@ -196,17 +189,17 @@ If you have cloned this repository `https://github.com/chilcano/ansible-minishif
 
 ### 2.1. Install Openshift, deploy Weave Scope, Istio and BookInfo App.
 ```
-$ ansible-playbook -i inventory 01-minishift-weavescope-istio.yml -e vm=openshift2 --ask-become-pass
+$ ansible-playbook -i inventory install-minishift-weavescope-istio.yml -e vm=openshift2 --ask-become-pass
 ```
 
 ### 2.2. Remove Weave Scope, Istio and BookInfo App.
 ```
-$ ansible-playbook -i inventory 02a-remove-weavescope-istio.yml -e vm=openshift2 --ask-become-pass
+$ ansible-playbook -i inventory remove-weavescope-istio.yml -e vm=openshift2 --ask-become-pass
 ```
 
 ### 2.3. Remove the Minishift instance (VM).
 ```
-$ ansible-playbook -i inventory 02b-remove-minishift.yml -e vm=openshift2 --ask-become-pass
+$ ansible-playbook -i inventory remove-minishift.yml -e vm=openshift2 --ask-become-pass
 ```
 
 ## Screenshots

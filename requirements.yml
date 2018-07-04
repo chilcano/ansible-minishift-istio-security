@@ -1,0 +1,3 @@
+- src: chilcano.minishift
+- src: chilcano.istio
+- src: chilcano.weave-scope
